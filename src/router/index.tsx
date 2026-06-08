@@ -18,6 +18,11 @@ import { TrenHargaPage }        from '../features/admin/TrenHargaPage'
 import { AdminPengaturanPage }  from '../features/admin/AdminPengaturanPage'
 import { PetaniDashboardPage }  from '../features/petani/PetaniDashboardPage'
 import { PembeliDashboardPage } from '../features/pembeli/PembeliDashboardPage'
+import { PembeliBrowsePage }    from '../features/pembeli/PembeliBrowsePage'
+import { PembeliPesananPage }   from '../features/pembeli/PembeliPesananPage'
+import { PembeliRiwayatPage }   from '../features/pembeli/PembeliRiwayatPage'
+import { PembeliProfilPage }    from '../features/pembeli/PembeliProfilPage'
+import { PembeliBantuanPage }   from '../features/pembeli/PembeliBantuanPage'
 import { PlaceholderPage }      from '../features/shared/PlaceholderPage'
 
 // ===== ADMIN Layout =====
@@ -85,11 +90,11 @@ const pembeliLayout = {
   children: [
     { index: true, element: <Navigate to="/pembeli/dashboard" replace /> },
     { path: 'dashboard', element: <PembeliDashboardPage /> },
-    { path: 'browse',    element: <PlaceholderPage title="Jelajahi Produk" /> },
-    { path: 'pesanan',   element: <PlaceholderPage title="Pesanan Saya" /> },
-    { path: 'riwayat',   element: <PlaceholderPage title="Riwayat Pembelian" /> },
-    { path: 'profil',    element: <PlaceholderPage title="Profil Akun" /> },
-    { path: 'bantuan',   element: <PlaceholderPage title="Bantuan" /> },
+    { path: 'browse',    element: <PembeliBrowsePage /> },
+    { path: 'pesanan',   element: <PembeliPesananPage /> },
+    { path: 'riwayat',   element: <PembeliRiwayatPage /> },
+    { path: 'profil',    element: <PembeliProfilPage /> },
+    { path: 'bantuan',   element: <PembeliBantuanPage /> },
   ],
 }
 

@@ -52,6 +52,18 @@ API yang diakses oleh pengguna dengan role `Petani`.
 | `/api/petani/recommendations` | `GET` | Mengambil rekomendasi berbasis AI (misal: rekomendasi harga jual berdasar tren pasar). |
 | `/api/petani/profile` | `GET`, `PUT` | Melihat dan memperbarui profil atau informasi toko/kebun petani. |
 
+## 5. Pembeli
+API yang diakses oleh pengguna dengan role `Pembeli`.
+
+| Endpoint | Method | Deskripsi |
+| :--- | :--- | :--- |
+| `/api/pembeli/dashboard` | `GET` | Mengambil statistik dashboard pembeli (pesanan aktif, total belanja). |
+| `/api/pembeli/products` | `GET` | Mengambil daftar produk untuk dibeli (bisa dengan filter kategori, pencarian). |
+| `/api/pembeli/orders` | `GET`, `POST` | Mengambil daftar pesanan saya / Membuat pesanan baru (checkout). |
+| `/api/pembeli/orders/:id/status`| `PUT` | Memperbarui status pesanan (misal: konfirmasi terima barang). |
+| `/api/pembeli/history` | `GET` | Mengambil riwayat pembelian yang telah selesai atau dibatalkan. |
+| `/api/pembeli/profile` | `GET`, `PUT` | Melihat dan memperbarui profil atau alamat pengiriman pembeli. |
+
 ---
 
 *Catatan: Struktur payload dan respons (JSON) akan disesuaikan dengan kebutuhan implementasi di sisi backend.*
