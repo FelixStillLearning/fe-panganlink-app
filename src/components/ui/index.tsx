@@ -182,3 +182,32 @@ export function EmptyState({
     </div>
   )
 }
+
+// ===== Modal =====
+type ModalProps = {
+  isOpen: boolean
+  onClose: () => void
+  title: string
+  children: ReactNode
+}
+
+export function Modal({ isOpen, onClose, title, children }: ModalProps) {
+  if (!isOpen) return null
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="fixed inset-0 bg-black/40 backdrop-blur-[2px] transition-opacity" onClick={onClose} />
+      <div className="bg-surface-container-lowest rounded-2xl shadow-popup w-full max-w-lg z-10 p-6 animate-fadeUp mx-4 flex flex-col max-h-[90vh]">
+        <div className="flex items-center justify-between mb-5 flex-shrink-0">
+          <h3 className="text-[17px] font-bold text-on-surface">{title}</h3>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-container text-secondary transition-colors">
+            <span className="material-symbols-outlined text-[20px]">close</span>
+          </button>
+        </div>
+        <div className="overflow-y-auto hide-scrollbar flex-1 -mx-2 px-2 pb-2">
+          {children}
+        </div>
+      </div>
+    </div>
+  )
+}

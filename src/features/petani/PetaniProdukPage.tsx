@@ -1,4 +1,5 @@
-import { SectionCard, Button, Badge } from '../../components/ui'
+import { useState } from 'react'
+import { SectionCard, Button, Badge, Modal } from '../../components/ui'
 
 const products = [
   { id: 1, name: 'Beras Rojolele', category: 'Beras', stock: '500 kg', price: 'Rp 14.000/kg', status: 'Aktif' },
@@ -6,6 +7,14 @@ const products = [
 ]
 
 export function PetaniProdukPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [modalMode, setModalMode] = useState<'add' | 'edit'>('add')
+
+  const handleOpenModal = (mode: 'add' | 'edit') => {
+    setModalMode(mode)
+    setIsModalOpen(true)
+  }
+
   return (
     <div className="space-y-6 max-w-7xl animate-fadeUp">
       <div className="flex justify-between items-center">
@@ -13,7 +22,7 @@ export function PetaniProdukPage() {
           <h2 className="text-2xl md:text-3xl font-bold text-on-surface">Produk Saya</h2>
           <p className="text-secondary text-sm mt-1">Kelola daftar komoditas yang Anda jual di PanganLink.</p>
         </div>
-        <Button icon="add" size="md">Tambah Produk</Button>
+        <Button icon="add" size="md" onClick={() => handleOpenModal('add')}>Tambah Produk</Button>
       </div>
 
       <SectionCard title="Daftar Produk">
@@ -40,7 +49,7 @@ export function PetaniProdukPage() {
                     <Badge variant={p.status === 'Aktif' ? 'success' : 'warning'}>{p.status}</Badge>
                   </td>
                   <td className="py-3 px-2 text-right">
-                    <Button variant="ghost" size="sm" icon="edit" className="text-primary hover:bg-primary/10">Edit</Button>
+                    <Button variant="ghost" size="sm" icon="edit" onClick={() => handleOpenModal('edit')}>Edit</Button>
                   </td>
                 </tr>
               ))}
@@ -48,6 +57,45 @@ export function PetaniProdukPage() {
           </table>
         </div>
       </SectionCard>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={modalMode === 'add' ? 'Tambah Produk Baru' : 'Edit Produk'}
+      >
+        <div className="space-y-5">
+          <div>
+            <label className="block text-[11px] font-bold text-secondary uppercase tracking-wider mb-1.5">Nama Produk</label>
+            <input type="text" className="w-full bg-transparent text-sm text-on-surface p-2.5 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none transition-all" placeholder="Cth: Beras Rojolele Premium" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[11px] font-bold text-secondary uppercase tracking-wider mb-1.5">Kategori</label>
+              <select className="w-full bg-transparent text-sm text-on-surface p-2.5 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none transition-all">
+                <option>Beras</option>
+                <option>Sayuran</option>
+                <option>Buah-buahan</option>
+                <option>Bumbu Dapur</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-[11px] font-bold text-secondary uppercase tracking-wider mb-1.5">Stok (kg)</label>
+              <input type="number" className="w-full bg-transparent text-sm text-on-surface p-2.5 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none transition-all" placeholder="0" />
+            </div>
+          </div>
+          <div>
+            <label className="block text-[11px] font-bold text-secondary uppercase tracking-wider mb-1.5">Harga per Kg</label>
+            <div className="relative flex items-center">
+              <span className="absolute left-3 text-sm font-bold text-secondary">Rp</span>
+              <input type="number" className="w-full bg-transparent text-sm text-on-surface py-2.5 pr-3 pl-9 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none transition-all" placeholder="14000" />
+            </div>
+          </div>
+          <div className="pt-5 flex gap-3 justify-end border-t border-outline-variant/30 mt-2">
+            <Button variant="ghost" onClick={() => setIsModalOpen(false)}>Batal</Button>
+            <Button icon="save" onClick={() => setIsModalOpen(false)}>Simpan Produk</Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }
