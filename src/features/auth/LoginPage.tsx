@@ -27,7 +27,9 @@ export function LoginPage() {
       else if (role === 'petani') navigate('/petani/dashboard')
       else navigate('/pembeli/dashboard')
     } catch (err: any) {
-      setError(err.message || 'Login gagal. Silakan periksa kembali email dan password Anda.')
+      const msg = err.message || 'Login gagal. Silakan periksa kembali email dan password Anda.'
+      setError(msg)
+      alert(msg)
     } finally {
       setLoading(false)
     }
