@@ -1,22 +1,34 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
 import { Sidebar, NavItem } from './Sidebar'
 import { Topbar } from './Topbar'
+import { authApi } from '../../lib/services'
 
 type DashboardLayoutProps = {
   navItems: NavItem[]
   footerNavItems?: NavItem[]
   role?: string
-  userName?: string
+  userName?: string // keeping this as fallback
 }
 
 export function DashboardLayout({
   navItems,
   footerNavItems,
   role,
-  userName,
+  userName: fallbackUserName,
 }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [realName, setRealName] = useState<string | null>(null)
+
+  useEffect(() => {
+    authApi.getMe().then((res: any) => {
+      if (res && res.user && res.user.name) {
+        setRealName(res.user.name)
+      }
+    }).catch(console.error)
+  }, [])
+
+  const displayUserName = realName || fallbackUserName
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -25,7 +37,7 @@ export function DashboardLayout({
         navItems={navItems}
         footerNavItems={footerNavItems}
         role={role}
-        userName={userName}
+        userName={displayUserName}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />

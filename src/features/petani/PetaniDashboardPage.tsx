@@ -1,10 +1,6 @@
+import { useEffect, useState } from 'react'
 import { StatCard, SectionCard, Badge, Button } from '../../components/ui'
-
-const recentOrders = [
-  { id: '#ORD-092', product: 'Beras Rojolele',    qty: '50 kg',  status: 'Menunggu', date: '08 Jun 2026' },
-  { id: '#ORD-091', product: 'Cabai Merah',       qty: '15 kg',  status: 'Selesai',  date: '07 Jun 2026' },
-  { id: '#ORD-090', product: 'Bawang Merah',      qty: '30 kg',  status: 'Selesai',  date: '06 Jun 2026' },
-]
+import { petaniApi, authApi } from '../../lib/services'
 
 const aiRecs = [
   { name: 'Cabai Merah',  trend: '+15% Permintaan', direction: 'up',     price: 'Rp 45k/kg', icon: 'trending_up' },
@@ -13,6 +9,28 @@ const aiRecs = [
 ]
 
 export function PetaniDashboardPage() {
+  const [user, setUser] = useState<any>(null)
+  const [stats, setStats] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    Promise.all([
+      authApi.getMe(),
+      petaniApi.getDashboard()
+    ]).then(([meRes, statsRes]: any) => {
+      setUser(meRes.user)
+      setStats(statsRes.data)
+      setLoading(false)
+    }).catch(console.error)
+  }, [])
+
+  if (loading) {
+    return <div className="p-8 text-center text-secondary">Memuat dashboard...</div>
+  }
+
+  const name = user?.name ? user.name.split(' ')[0] : 'Petani'
+  const recentOrders = stats?.recent_orders?.slice(0, 5) || []
+
   return (
     <div className="space-y-6 max-w-7xl">
       {/* Welcome */}
@@ -21,7 +39,7 @@ export function PetaniDashboardPage() {
           {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </p>
         <h2 className="text-2xl md:text-3xl font-bold text-on-surface mt-1">
-          Selamat datang, Budi! 👋
+          Selamat datang, {name}! 👋
         </h2>
         <p className="text-secondary text-sm mt-1 max-w-xl">
           Pantau aktivitas toko dan perbarui stok hasil panen Anda hari ini.
@@ -30,10 +48,10 @@ export function PetaniDashboardPage() {
 
       {/* Stats */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="Total Produk"      value={12}            icon="inventory_2"     iconColor="text-primary"  trend="2 baru bulan ini" trendUp delay={1} />
-        <StatCard label="Order Menunggu"    value={3}             icon="pending_actions" iconColor="text-warning"  delay={2} />
-        <StatCard label="Penjualan Bulan Ini" value="Rp 4,2 jt" icon="payments"        iconColor="text-success"  trend="+12% vs bulan lalu" trendUp delay={3} />
-        <StatCard label="Pending Approve"   value={2}             icon="gavel"           iconColor="text-danger"   delay={4} />
+        <StatCard label="Total Produk"      value={stats?.total_products || 0}            icon="inventory_2"     iconColor="text-primary"  trend="" delay={1} />
+        <StatCard label="Order Menunggu"    value={stats?.orders_pending || 0}             icon="pending_actions" iconColor="text-warning"  delay={2} />
+        <StatCard label="Penjualan Bulan Ini" value={`Rp ${(stats?.sales_this_month || 0).toLocaleString('id-ID')}`} icon="payments"        iconColor="text-success"  trend="" delay={3} />
+        <StatCard label="Pending Approve"   value={stats?.pending_approve || 0}             icon="gavel"           iconColor="text-danger"   delay={4} />
       </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -50,14 +68,17 @@ export function PetaniDashboardPage() {
                 <thead>
                   <tr className="text-[10px] font-bold text-secondary uppercase tracking-wider border-b border-outline-variant/20">
                     <th className="text-left py-2 px-2">ID Pesanan</th>
-                    <th className="text-left py-2 px-2">Komoditas</th>
-                    <th className="text-left py-2 px-2">Jumlah</th>
                     <th className="text-left py-2 px-2">Status</th>
+                    <th className="text-left py-2 px-2">Total Harga</th>
                     <th className="text-left py-2 px-2">Tanggal</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {recentOrders.map((order) => (
+                  {recentOrders.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="py-8 text-center text-secondary">Belum ada pesanan</td>
+                    </tr>
+                  ) : recentOrders.map((order: any) => (
                     <tr
                       key={order.id}
                       className="border-b border-outline-variant/10 hover:bg-surface-container/50 transition-colors"
@@ -65,14 +86,13 @@ export function PetaniDashboardPage() {
                       <td className="py-3 px-2 font-mono text-primary text-[12px] font-semibold">
                         {order.id}
                       </td>
-                      <td className="py-3 px-2 font-medium text-on-surface">{order.product}</td>
-                      <td className="py-3 px-2 font-mono text-[12px] text-secondary">{order.qty}</td>
                       <td className="py-3 px-2">
-                        <Badge variant={order.status === 'Selesai' ? 'success' : 'warning'}>
+                        <Badge variant={order.status === 'selesai' || order.status === 'success' ? 'success' : 'warning'}>
                           {order.status}
                         </Badge>
                       </td>
-                      <td className="py-3 px-2 text-[12px] text-secondary">{order.date}</td>
+                      <td className="py-3 px-2 font-mono text-[12px] text-secondary">Rp {order.total_harga.toLocaleString('id-ID')}</td>
+                      <td className="py-3 px-2 text-[12px] text-secondary">{new Date(order.created_at).toLocaleDateString('id-ID')}</td>
                     </tr>
                   ))}
                 </tbody>
