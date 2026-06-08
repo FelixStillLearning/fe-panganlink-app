@@ -38,6 +38,20 @@ API yang hanya dapat diakses oleh role `Admin`. Membutuhkan token autentikasi.
 | `/api/admin/price-trends` | `GET` | Mengambil data hasil prediksi tren harga dari model AI (Bayesian Ridge). |
 | `/api/admin/settings` | `GET`, `PUT` | Mengelola pengaturan umum platform PanganLink. |
 
+## 4. Petani
+API yang diakses oleh pengguna dengan role `Petani`.
+
+| Endpoint | Method | Deskripsi |
+| :--- | :--- | :--- |
+| `/api/petani/dashboard` | `GET` | Mengambil statistik dashboard petani (total pendapatan, pesanan baru, produk aktif). |
+| `/api/petani/products` | `GET`, `POST` | Mendapatkan daftar produk milik petani / Menambahkan produk baru. |
+| `/api/petani/products/:id` | `PUT`, `DELETE`| Memperbarui informasi produk atau menghapus produk. |
+| `/api/petani/orders` | `GET` | Mengambil daftar pesanan/order yang masuk ke petani tersebut. |
+| `/api/petani/orders/:id/status`| `PUT` | Memperbarui status pesanan (misal: "Diproses", "Dikirim", "Selesai"). |
+| `/api/petani/history` | `GET` | Mengambil riwayat penjualan yang telah selesai atau dibatalkan. |
+| `/api/petani/recommendations` | `GET` | Mengambil rekomendasi berbasis AI (misal: rekomendasi harga jual berdasar tren pasar). |
+| `/api/petani/profile` | `GET`, `PUT` | Melihat dan memperbarui profil atau informasi toko/kebun petani. |
+
 ---
 
 *Catatan: Struktur payload dan respons (JSON) akan disesuaikan dengan kebutuhan implementasi di sisi backend.*

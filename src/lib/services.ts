@@ -49,3 +49,28 @@ export const adminApi = {
   getSettings: () => api.get('/admin/settings'),
   updateSettings: (data: any) => api.put('/admin/settings', data),
 };
+
+// ==========================================
+// 4. PETANI APIS
+// ==========================================
+export const petaniApi = {
+  getDashboard: () => api.get('/petani/dashboard'),
+  
+  // Products
+  getProducts: () => api.get('/petani/products'),
+  addProduct: (data: any) => api.post('/petani/products', data),
+  updateProduct: (id: string, data: any) => api.put(`/petani/products/${id}`, data),
+  deleteProduct: (id: string) => api.delete(`/petani/products/${id}`),
+  
+  // Orders
+  getOrders: () => api.get('/petani/orders'),
+  updateOrderStatus: (id: string, status: string) => api.put(`/petani/orders/${id}/status`, { status }),
+  
+  // History & Recommendations
+  getHistory: () => api.get('/petani/history'),
+  getRecommendations: () => api.get('/petani/recommendations'),
+  
+  // Profile
+  getProfile: () => api.get('/petani/profile'),
+  updateProfile: (data: any) => api.put('/petani/profile', data),
+};

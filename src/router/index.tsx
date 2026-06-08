@@ -41,6 +41,14 @@ const adminLayout = {
   ],
 }
 
+import { PetaniProdukPage }      from '../features/petani/PetaniProdukPage'
+import { PetaniPesananPage }     from '../features/petani/PetaniPesananPage'
+import { PetaniRiwayatPage }     from '../features/petani/PetaniRiwayatPage'
+import { PetaniRekomendasiPage } from '../features/petani/PetaniRekomendasiPage'
+import { PetaniProfilPage }      from '../features/petani/PetaniProfilPage'
+import { PetaniBantuanPage }     from '../features/petani/PetaniBantuanPage'
+import { PetaniPengaturanPage }  from '../features/petani/PetaniPengaturanPage'
+
 // ===== PETANI Layout =====
 const petaniLayout = {
   element: (
@@ -54,13 +62,13 @@ const petaniLayout = {
   children: [
     { index: true, element: <Navigate to="/petani/dashboard" replace /> },
     { path: 'dashboard',   element: <PetaniDashboardPage /> },
-    { path: 'produk',      element: <PlaceholderPage title="Produk Saya" /> },
-    { path: 'pesanan',     element: <PlaceholderPage title="Order Masuk" /> },
-    { path: 'riwayat',     element: <PlaceholderPage title="Riwayat Penjualan" /> },
-    { path: 'rekomendasi', element: <PlaceholderPage title="Rekomendasi AI" /> },
-    { path: 'profil',      element: <PlaceholderPage title="Profil Akun" /> },
-    { path: 'bantuan',     element: <PlaceholderPage title="Bantuan" /> },
-    { path: 'pengaturan',  element: <PlaceholderPage title="Pengaturan" /> },
+    { path: 'produk',      element: <PetaniProdukPage /> },
+    { path: 'pesanan',     element: <PetaniPesananPage /> },
+    { path: 'riwayat',     element: <PetaniRiwayatPage /> },
+    { path: 'rekomendasi', element: <PetaniRekomendasiPage /> },
+    { path: 'profil',      element: <PetaniProfilPage /> },
+    { path: 'bantuan',     element: <PetaniBantuanPage /> },
+    { path: 'pengaturan',  element: <PetaniPengaturanPage /> },
   ],
 }
 
