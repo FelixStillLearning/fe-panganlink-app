@@ -2,13 +2,22 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 export function LoginPage() {
-  const [role, setRole] = useState<'pembeli' | 'petani' | 'admin'>('pembeli')
   const navigate = useNavigate()
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    // Simulated login redirect based on role
-    navigate(`/${role}/dashboard`)
+    
+    // Simple frontend routing based on email for testing purposes
+    const formData = new FormData(e.currentTarget)
+    const email = formData.get('email') as string
+    
+    if (email.includes('admin')) {
+      navigate('/admin/dashboard')
+    } else if (email.includes('petani')) {
+      navigate('/petani/dashboard')
+    } else {
+      navigate('/pembeli/dashboard')
+    }
   }
 
   return (
@@ -36,8 +45,12 @@ export function LoginPage() {
       </div>
 
       {/* Right Panel: Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12">
-        <div className="w-full max-w-md animate-fadeIn">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 relative">
+        <Link to="/" className="absolute top-8 left-8 sm:top-12 sm:left-12 inline-flex items-center gap-2 text-sm font-semibold text-secondary hover:text-primary transition-colors bg-surface-container-low px-4 py-2 rounded-full shadow-sm hover:shadow-card">
+          <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+          Kembali
+        </Link>
+        <div className="w-full max-w-md animate-fadeIn mt-12 sm:mt-0">
           
           <div className="lg:hidden mb-8">
             <Link to="/" className="text-2xl font-bold tracking-tight text-primary flex items-center gap-2">
@@ -51,31 +64,7 @@ export function LoginPage() {
             <p className="text-on-surface-variant">Masuk ke akun Anda untuk melanjutkan.</p>
           </div>
 
-          {/* Role Selector (For demo purposes so user can test different dashboards) */}
-          <div className="mb-8 p-1 bg-surface-container-high rounded-lg flex text-sm font-semibold">
-            <button 
-              type="button"
-              onClick={() => setRole('pembeli')}
-              className={`flex-1 py-2 rounded-md transition-all ${role === 'pembeli' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-secondary hover:text-on-surface'}`}
-            >
-              Pembeli
-            </button>
-            <button 
-              type="button"
-              onClick={() => setRole('petani')}
-              className={`flex-1 py-2 rounded-md transition-all ${role === 'petani' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-secondary hover:text-on-surface'}`}
-            >
-              Petani
-            </button>
-            <button 
-              type="button"
-              onClick={() => setRole('admin')}
-              className={`flex-1 py-2 rounded-md transition-all ${role === 'admin' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-secondary hover:text-on-surface'}`}
-            >
-              Admin
-            </button>
-          </div>
-
+          {/* Form */}
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
               <label className="block text-sm font-semibold text-on-surface mb-1.5">Email</label>
@@ -83,11 +72,13 @@ export function LoginPage() {
                 <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-secondary text-[20px]">mail</span>
                 <input 
                   type="email" 
+                  name="email"
                   required
-                  placeholder={`email.${role}@example.com`}
+                  defaultValue="pembeli@example.com"
                   className="w-full pl-11 pr-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-xl text-sm focus:border-primary focus:ring-2 focus:ring-primary-muted transition-all"
                 />
               </div>
+              <p className="text-xs text-secondary mt-1.5">Tip: Gunakan email admin@... atau petani@... untuk testing role.</p>
             </div>
 
             <div>

@@ -2,13 +2,12 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 export function RegisterPage() {
-  const [role, setRole] = useState<'pembeli' | 'petani'>('pembeli')
   const navigate = useNavigate()
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault()
     // Simulated registration redirect
-    alert(`Pendaftaran berhasil sebagai ${role}!`)
+    alert('Pendaftaran berhasil! Silakan masuk ke akun Anda.')
     navigate('/login')
   }
 
@@ -37,8 +36,12 @@ export function RegisterPage() {
       </div>
 
       {/* Left Panel: Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-8 overflow-y-auto hide-scrollbar">
-        <div className="w-full max-w-md animate-fadeIn m-auto py-4">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-8 overflow-y-auto hide-scrollbar relative">
+        <Link to="/" className="absolute top-6 left-6 lg:top-8 lg:left-8 z-10 inline-flex items-center gap-2 text-sm font-semibold text-secondary hover:text-primary transition-colors bg-surface-container-low px-4 py-2 rounded-full shadow-sm hover:shadow-card">
+          <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+          Kembali
+        </Link>
+        <div className="w-full max-w-md animate-fadeIn m-auto py-4 mt-16 lg:mt-auto">
           
           <div className="lg:hidden mb-8">
             <Link to="/" className="text-2xl font-bold tracking-tight text-primary flex items-center gap-2">
@@ -48,40 +51,8 @@ export function RegisterPage() {
           </div>
 
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-on-surface mb-2">Buat Akun Baru</h1>
-            <p className="text-on-surface-variant">Lengkapi data di bawah ini untuk bergabung.</p>
-          </div>
-
-          {/* Role Selector */}
-          <div className="mb-6">
-            <label className="block text-sm font-semibold text-on-surface mb-3">Saya ingin mendaftar sebagai:</label>
-            <div className="grid grid-cols-2 gap-4">
-              <div 
-                onClick={() => setRole('pembeli')}
-                className={`border-2 rounded-xl p-3 cursor-pointer transition-all ${role === 'pembeli' ? 'border-primary bg-primary/5' : 'border-outline-variant hover:border-primary/50'}`}
-              >
-                <div className="flex items-center gap-3 mb-1">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${role === 'pembeli' ? 'bg-primary text-white' : 'bg-surface-variant text-secondary'}`}>
-                    <span className="material-symbols-outlined text-[18px]">shopping_bag</span>
-                  </div>
-                  <span className={`font-bold ${role === 'pembeli' ? 'text-primary' : 'text-on-surface'}`}>Pembeli</span>
-                </div>
-                <p className="text-xs text-on-surface-variant">Beli komoditas dengan harga transparan.</p>
-              </div>
-
-              <div 
-                onClick={() => setRole('petani')}
-                className={`border-2 rounded-xl p-3 cursor-pointer transition-all ${role === 'petani' ? 'border-primary bg-primary/5' : 'border-outline-variant hover:border-primary/50'}`}
-              >
-                <div className="flex items-center gap-3 mb-1">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${role === 'petani' ? 'bg-primary text-white' : 'bg-surface-variant text-secondary'}`}>
-                    <span className="material-symbols-outlined text-[18px]">agriculture</span>
-                  </div>
-                  <span className={`font-bold ${role === 'petani' ? 'text-primary' : 'text-on-surface'}`}>Petani</span>
-                </div>
-                <p className="text-xs text-on-surface-variant">Jual hasil panen dan pantau tren harga AI.</p>
-              </div>
-            </div>
+            <h1 className="text-3xl font-bold text-on-surface mb-2">Daftar Pembeli</h1>
+            <p className="text-on-surface-variant">Lengkapi data di bawah ini untuk bergabung sebagai pembeli di PanganLink.</p>
           </div>
 
           <form onSubmit={handleRegister} className="space-y-4">
