@@ -1,27 +1,64 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { api } from '../../lib/api'
 
 export function KelolaKomoditasPage() {
   const [modalType, setModalType] = useState<'none' | 'add' | 'edit' | 'delete'>('none')
   const [selectedItem, setSelectedItem] = useState<any>(null)
+  const [komoditas, setKomoditas] = useState<any[]>([])
 
-  const [komoditas, setKomoditas] = useState([
-    { id: 'KMD-001', name: 'Beras Pandan Wangi', icon: 'rice_bowl', unit: 'kg', category: 'Pangan Pokok', color: 'warning' },
-    { id: 'KMD-002', name: 'Cabai Merah Keriting', icon: 'local_fire_department', unit: 'kg', category: 'Hortikultura', color: 'danger' },
-    { id: 'KMD-004', name: 'Tomat Sayur', icon: 'spa', unit: 'kg', category: 'Sayuran', color: 'success' },
-  ])
+  const fetchKomoditas = async () => {
+    try {
+      const res = await api.get<any>('/v1/admin/commodities')
+      setKomoditas(res.data || [])
+    } catch (err) {
+      console.error('Failed to fetch komoditas:', err)
+    }
+  }
 
-  const handleDelete = () => {
+  useEffect(() => {
+    fetchKomoditas()
+  }, [])
+
+  const openModal = (type: 'add' | 'edit' | 'delete', item: any = null) => {
+    setModalType(type)
+    setSelectedItem(item)
+  }
+
+  const handleDelete = async () => {
     if (selectedItem) {
-      setKomoditas(prev => prev.filter(k => k.id !== selectedItem.id))
+      try {
+        await api.delete(`/v1/admin/commodities/${selectedItem.id}`)
+        setKomoditas(prev => prev.filter(k => k.id !== selectedItem.id))
+      } catch (err) {
+        console.error('Failed to delete komoditas', err)
+        alert('Gagal menghapus komoditas.')
+      }
     }
     setModalType('none')
   }
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
-    // For a real app, we'd grab form data. Here we just close the modal.
-    setModalType('none')
-    alert(modalType === 'add' ? 'Komoditas ditambahkan!' : 'Komoditas diperbarui!')
+    const form = e.target as HTMLFormElement
+    const nama = (form.elements.namedItem('nama') as HTMLInputElement).value
+    const kategori = (form.elements.namedItem('kategori') as HTMLSelectElement).value
+    const satuan = (form.elements.namedItem('satuan') as HTMLSelectElement).value
+
+    try {
+      if (modalType === 'add') {
+        const id = 'KMD-' + Math.floor(Math.random() * 10000).toString().padStart(4, '0') // Simple ID generator
+        const payload = { id, nama, kategori, satuan }
+        await api.post('/v1/admin/commodities', payload)
+      } else if (modalType === 'edit' && selectedItem) {
+        const payload = { id: selectedItem.id, nama, kategori, satuan }
+        await api.put(`/v1/admin/commodities/${selectedItem.id}`, payload)
+      }
+      await fetchKomoditas()
+      setModalType('none')
+    } catch (err) {
+      console.error('Failed to save komoditas:', err)
+      alert('Gagal menyimpan komoditas.')
+    }
   }
 
   return (
@@ -33,7 +70,7 @@ export function KelolaKomoditasPage() {
           <p className="text-sm text-secondary mt-1">Kelola data referensi komoditas pertanian sistem.</p>
         </div>
         <button 
-          onClick={() => setModalType('add')}
+          onClick={() => openModal('add')}
           className="bg-primary-container text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary shadow-sm hover:shadow-soft transition-all duration-200 flex items-center gap-2"
         >
           <span className="material-symbols-outlined text-[18px]">add</span>
@@ -79,27 +116,27 @@ export function KelolaKomoditasPage() {
                   <td className="px-6 py-4 font-mono font-bold text-primary">{item.id}</td>
                   <td className="px-6 py-4 font-medium flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                      <span className="material-symbols-outlined text-[18px]">{item.icon}</span>
+                      <span className="material-symbols-outlined text-[18px]">spa</span>
                     </div>
-                    {item.name}
+                    {item.nama}
                   </td>
-                  <td className="px-6 py-4 text-secondary">{item.unit}</td>
+                  <td className="px-6 py-4 text-secondary">{item.satuan}</td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex items-center px-2 py-1 rounded-md bg-${item.color}/10 text-${item.color} text-xs font-mono uppercase`}>
-                      {item.category}
+                    <span className="inline-flex items-center px-2 py-1 rounded-md bg-warning/10 text-warning text-xs font-mono uppercase">
+                      {item.kategori}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2 transition-opacity">
                       <button 
-                        onClick={() => { setSelectedItem(item); setModalType('edit') }} 
+                        onClick={() => openModal('edit', item)} 
                         className="p-1.5 text-secondary hover:text-primary hover:bg-primary-muted rounded-md transition-colors" 
                         title="Edit"
                       >
                         <span className="material-symbols-outlined text-[18px]">edit</span>
                       </button>
                       <button 
-                        onClick={() => { setSelectedItem(item); setModalType('delete') }} 
+                        onClick={() => openModal('delete', item)} 
                         className="p-1.5 text-secondary hover:text-danger hover:bg-danger/10 rounded-md transition-colors" 
                         title="Hapus"
                       >
@@ -115,7 +152,7 @@ export function KelolaKomoditasPage() {
 
         {/* Pagination */}
         <div className="p-4 border-t border-outline-variant/20 flex items-center justify-between text-secondary text-sm bg-surface-container-lowest">
-          <span>Menampilkan 1-3 dari 42 komoditas</span>
+          <span>Menampilkan {komoditas.length === 0 ? 0 : 1}-{komoditas.length} dari {komoditas.length} komoditas</span>
           <div className="flex items-center gap-1">
             <button className="p-1 rounded hover:bg-surface-container-low transition-colors disabled:opacity-50" disabled>
               <span className="material-symbols-outlined text-[20px]">chevron_left</span>
@@ -143,33 +180,32 @@ export function KelolaKomoditasPage() {
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
-            <form onSubmit={handleSave} className="p-6 space-y-4">
+            <form onSubmit={handleSave} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
               <div>
                 <label className="block text-sm text-on-surface-variant mb-1">Nama Komoditas</label>
                 <input 
+                  name="nama"
                   required
                   className="w-full px-4 py-2 bg-surface border border-outline-variant rounded-lg text-sm focus:border-primary focus:ring-2 focus:ring-primary-muted transition-all" 
                   placeholder="Cth: Beras Rojo Lele" 
                   type="text"
-                  defaultValue={modalType === 'edit' ? selectedItem?.name : ''}
+                  defaultValue={modalType === 'edit' ? selectedItem?.nama : ''}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm text-on-surface-variant mb-1">Kategori</label>
-                  <select required className="w-full px-4 py-2 bg-surface border border-outline-variant rounded-lg text-sm focus:border-primary focus:ring-2 focus:ring-primary-muted transition-all">
+                  <select name="kategori" required defaultValue={modalType === 'edit' ? selectedItem?.kategori : ''} className="w-full px-4 py-2 bg-surface border border-outline-variant rounded-lg text-sm focus:border-primary focus:ring-2 focus:ring-primary-muted transition-all">
                     <option value="">Pilih Kategori</option>
-                    <option value="pangan">Pangan Pokok</option>
-                    <option value="hortikultura">Hortikultura</option>
-                    <option value="sayuran">Sayuran</option>
+                    <option value="Beras">Beras</option>
+                    <option value="Cabai Merah">Cabai Merah</option>
+                    <option value="Tomat">Tomat</option>
                   </select>
                 </div>
                 <div>
                   <label className="block text-sm text-on-surface-variant mb-1">Satuan Dasar</label>
-                  <select className="w-full px-4 py-2 bg-surface border border-outline-variant rounded-lg text-sm focus:border-primary focus:ring-2 focus:ring-primary-muted transition-all">
+                  <select name="satuan" defaultValue="kg" disabled className="w-full px-4 py-2 bg-surface-variant border border-outline-variant rounded-lg text-sm text-secondary cursor-not-allowed">
                     <option value="kg">Kilogram (kg)</option>
-                    <option value="ton">Ton</option>
-                    <option value="ikat">Ikat</option>
                   </select>
                 </div>
               </div>
@@ -202,7 +238,7 @@ export function KelolaKomoditasPage() {
               <span className="material-symbols-outlined text-[24px]">warning</span>
             </div>
             <h3 className="text-xl font-bold text-on-surface mb-2">Hapus Komoditas?</h3>
-            <p className="text-sm text-secondary mb-6">Tindakan ini tidak dapat dibatalkan. Data komoditas <strong>{selectedItem?.name}</strong> akan dihapus secara permanen dari sistem.</p>
+            <p className="text-sm text-secondary mb-6">Tindakan ini tidak dapat dibatalkan. Data komoditas <strong>{selectedItem?.nama}</strong> akan dihapus secara permanen dari sistem.</p>
             <div className="flex justify-center gap-3 w-full">
               <button className="flex-1 px-4 py-2 rounded-lg text-sm font-medium border border-outline-variant hover:bg-surface-container-low transition-colors" onClick={() => setModalType('none')}>
                 Batal

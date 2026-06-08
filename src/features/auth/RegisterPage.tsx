@@ -42,7 +42,7 @@ export function RegisterPage() {
         <div className="relative z-20 text-white p-12 flex flex-col justify-end h-full w-full">
           <div className="mb-auto self-end">
             <Link to="/" className="text-3xl font-bold tracking-tight text-white flex items-center gap-2">
-              <span className="material-symbols-outlined text-[32px] text-brand-green-light">energy_savings_leaf</span>
+              <img src="/img/logo_panganlink.png" alt="PanganLink Logo" className="h-10 w-10 object-contain" />
               PanganLink
             </Link>
           </div>
@@ -63,7 +63,7 @@ export function RegisterPage() {
           
           <div className="lg:hidden mb-8">
             <Link to="/" className="text-2xl font-bold tracking-tight text-primary flex items-center gap-2">
-              <span className="material-symbols-outlined text-[28px] text-brand-green">energy_savings_leaf</span>
+              <img src="/img/logo_panganlink.png" alt="PanganLink Logo" className="h-8 w-8 object-contain" />
               PanganLink
             </Link>
           </div>

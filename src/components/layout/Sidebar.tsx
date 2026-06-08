@@ -116,13 +116,8 @@ export function Sidebar({
         {/* Brand */}
         <div className="px-5 pt-7 pb-6">
           <div className="flex items-center gap-3">
-            <div className="sidebar-brand-accent w-10 h-10 rounded-xl flex items-center justify-center shadow-soft flex-shrink-0">
-              <span
-                className="material-symbols-outlined text-white text-xl"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                eco
-              </span>
+            <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0">
+              <img src="/img/logo_panganlink.png" alt="PanganLink Logo" className="w-full h-full object-cover" />
             </div>
             <div>
               <h1 className="text-[17px] font-bold text-on-surface tracking-tight leading-tight">
@@ -200,13 +195,8 @@ export function Sidebar({
         {/* Brand */}
         <div className="px-5 pt-6 pb-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="sidebar-brand-accent w-9 h-9 rounded-xl flex items-center justify-center shadow-soft flex-shrink-0">
-              <span
-                className="material-symbols-outlined text-white text-[18px]"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                eco
-              </span>
+            <div className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0">
+              <img src="/img/logo_panganlink.png" alt="PanganLink Logo" className="w-full h-full object-cover" />
             </div>
             <h1 className="text-[16px] font-bold text-on-surface">PanganLink</h1>
           </div>

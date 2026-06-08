@@ -30,12 +30,7 @@ export function LandingPage() {
       >
         <div className="flex justify-between items-center px-6 lg:px-12 max-w-7xl mx-auto">
           <div className="flex items-center gap-2 group cursor-pointer">
-            <span
-              className="material-symbols-outlined text-primary text-[28px]"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              eco
-            </span>
+            <img src="/img/logo_panganlink.png" alt="PanganLink Logo" className="h-8 w-8 object-contain" />
             <span className="text-[22px] font-bold text-primary tracking-tight">
               PanganLink
             </span>
@@ -288,7 +283,7 @@ export function LandingPage() {
       <footer className="w-full py-12 px-6 lg:px-12 bg-surface-container border-t border-secondary-container">
         <div className="flex flex-col md:flex-row justify-between items-center gap-8 max-w-7xl mx-auto">
           <div className="flex items-center gap-3">
-            <span className="material-symbols-outlined text-primary text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>eco</span>
+            <img src="/img/logo_panganlink.png" alt="PanganLink Logo" className="h-8 w-8 object-contain" />
             <span className="text-xl font-bold text-primary">PanganLink</span>
           </div>
           <p className="text-sm text-on-surface-variant text-center md:text-left">
