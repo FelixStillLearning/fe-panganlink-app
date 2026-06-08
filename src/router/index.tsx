@@ -9,6 +9,10 @@ import {
 
 import { LandingPage }          from '../features/landing/LandingPage'
 import { AdminDashboardPage }   from '../features/admin/AdminDashboardPage'
+import { ModerasiProdukPage }   from '../features/admin/ModerasiProdukPage'
+import { KelolaKomoditasPage }  from '../features/admin/KelolaKomoditasPage'
+import { HargaPasarPage }       from '../features/admin/HargaPasarPage'
+import { TrenHargaPage }        from '../features/admin/TrenHargaPage'
 import { PetaniDashboardPage }  from '../features/petani/PetaniDashboardPage'
 import { PembeliDashboardPage } from '../features/pembeli/PembeliDashboardPage'
 import { PlaceholderPage }      from '../features/shared/PlaceholderPage'
@@ -26,10 +30,10 @@ const adminLayout = {
   children: [
     { index: true, element: <Navigate to="/admin/dashboard" replace /> },
     { path: 'dashboard',  element: <AdminDashboardPage /> },
-    { path: 'moderasi',   element: <PlaceholderPage title="Moderasi Produk" /> },
-    { path: 'komoditas',  element: <PlaceholderPage title="Kelola Komoditas" /> },
-    { path: 'harga-pasar', element: <PlaceholderPage title="Harga Pasar" /> },
-    { path: 'tren-harga', element: <PlaceholderPage title="Tren Harga AI" /> },
+    { path: 'moderasi',   element: <ModerasiProdukPage /> },
+    { path: 'komoditas',  element: <KelolaKomoditasPage /> },
+    { path: 'harga-pasar', element: <HargaPasarPage /> },
+    { path: 'tren-harga', element: <TrenHargaPage /> },
     { path: 'pengaturan', element: <PlaceholderPage title="Pengaturan" /> },
   ],
 }
