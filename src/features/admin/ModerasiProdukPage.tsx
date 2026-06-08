@@ -1,40 +1,34 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { api } from '../../lib/api'
 
 export function ModerasiProdukPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<any>(null)
   const [activeTab, setActiveTab] = useState('all')
+  const [products, setProducts] = useState<any[]>([])
 
-  const [products, setProducts] = useState([
-    {
-      id: 'PRD-001',
-      name: 'Beras Merah Organik Premium',
-      category: 'Biji-bijian',
-      farmer: 'Pak Budi Santoso',
-      location: 'Subang, Jawa Barat',
-      price: '18.500',
-      stock: 500,
-      status: 'pending',
-      date: '24 Okt 2026',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA7xmgTKmaBzP10pSL-fFseIL2uckh5J61WKrrOTwfIQPOfM1LM9XOWkKwgAUlAq_u3b1AsoKV8L-sILAQjS5AC-aUdz3IxBHHWgMG7BJvMfpLkde9b1Gniqg-AvO4bvDRYHRZxao9DNh0loNuugmN1rV8quljGeki-A0fIesfiQH4gvp3WxBemeQBf2R-2UBf2HacnLVXqCcix-j0wUGUVQY4O41ssVAB-jd0_gF64IZgCwYb4XWkcEItD6Lx0mIVAqT1kSxTWeDg',
-    },
-    {
-      id: 'PRD-002',
-      name: 'Jagung Manis Super',
-      category: 'Sayuran',
-      farmer: 'Koperasi Tani Makmur',
-      location: 'Malang, Jawa Timur',
-      price: '6.500',
-      stock: 2000,
-      status: 'approved',
-      date: '23 Okt 2026',
-      image: '',
+  const fetchProducts = async () => {
+    try {
+      const res = await api.get<any>('/v1/admin/products')
+      setProducts(res.data || [])
+    } catch (err) {
+      console.error('Failed to fetch products', err)
     }
-  ])
+  }
 
-  const handleAction = (id: string, action: 'approved' | 'rejected') => {
-    setProducts(prev => prev.map(p => p.id === id ? { ...p, status: action } : p))
-    setIsModalOpen(false)
+  useEffect(() => {
+    fetchProducts()
+  }, [])
+
+  const handleAction = async (id: string, action: 'approved' | 'rejected') => {
+    try {
+      await api.put(`/v1/admin/products/${id}/${action === 'approved' ? 'approve' : 'reject'}`, {})
+      setProducts(prev => prev.map(p => p.id === id ? { ...p, status: action } : p))
+      setIsModalOpen(false)
+    } catch (err) {
+      console.error(`Failed to ${action} product:`, err)
+      alert(`Gagal mengubah status produk.`)
+    }
   }
 
   const openModal = (product: any) => {
@@ -111,7 +105,7 @@ export function ModerasiProdukPage() {
               <span className="material-symbols-outlined text-[18px]">inventory_2</span>
             </div>
           </div>
-          <div className="text-xl font-bold font-mono text-on-surface">1,248</div>
+          <div className="text-xl font-bold font-mono text-on-surface">{products.length}</div>
         </div>
         <div className="bg-surface-container-lowest p-4 rounded-xl shadow-soft border border-outline-variant/20 hover:-translate-y-1 transition-transform duration-300 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-surface to-warning/5 pointer-events-none"></div>
@@ -121,16 +115,16 @@ export function ModerasiProdukPage() {
               <span className="material-symbols-outlined text-[18px]">pending_actions</span>
             </div>
           </div>
-          <div className="text-xl font-bold font-mono text-on-surface relative z-10">12</div>
+          <div className="text-xl font-bold font-mono text-on-surface relative z-10">{products.filter(p => p.status === 'pending').length}</div>
         </div>
         <div className="bg-surface-container-lowest p-4 rounded-xl shadow-soft border border-outline-variant/20 hover:-translate-y-1 transition-transform duration-300">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-on-surface-variant">Disetujui (Bulan ini)</span>
+            <span className="text-sm text-on-surface-variant">Disetujui</span>
             <div className="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center text-success">
               <span className="material-symbols-outlined text-[18px]">check_circle</span>
             </div>
           </div>
-          <div className="text-xl font-bold font-mono text-on-surface">342</div>
+          <div className="text-xl font-bold font-mono text-on-surface">{products.filter(p => p.status === 'approved').length}</div>
         </div>
         <div className="bg-surface-container-lowest p-4 rounded-xl shadow-soft border border-outline-variant/20 hover:-translate-y-1 transition-transform duration-300">
           <div className="flex items-center justify-between mb-2">
@@ -139,7 +133,7 @@ export function ModerasiProdukPage() {
               <span className="material-symbols-outlined text-[18px]">cancel</span>
             </div>
           </div>
-          <div className="text-xl font-bold font-mono text-on-surface">8</div>
+          <div className="text-xl font-bold font-mono text-on-surface">{products.filter(p => p.status === 'rejected').length}</div>
         </div>
       </div>
 
@@ -163,27 +157,27 @@ export function ModerasiProdukPage() {
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-md overflow-hidden bg-surface-variant flex-shrink-0 border border-outline-variant/30 flex items-center justify-center text-secondary/50">
-                        {product.image ? (
-                          <img alt={product.name} className="w-full h-full object-cover" src={product.image} />
+                        {product.foto_url ? (
+                          <img alt={product.komoditas?.nama || 'Produk'} className="w-full h-full object-cover" src={product.foto_url} />
                         ) : (
                           <span className="material-symbols-outlined">image</span>
                         )}
                       </div>
                       <div>
                         <button className="text-sm text-on-surface font-semibold hover:text-primary transition-colors text-left" onClick={() => openModal(product)}>
-                          {product.name}
+                          {product.komoditas?.nama || product.komoditas_id || 'Produk'}
                         </button>
-                        <div className="text-xs font-mono text-on-surface-variant mt-1">{product.category}</div>
+                        <div className="text-xs font-mono text-on-surface-variant mt-1">{product.komoditas?.kategori || 'Kategori'}</div>
                       </div>
                     </div>
                   </td>
                   <td className="px-4 py-4">
-                    <div className="text-sm text-on-surface">{product.farmer}</div>
-                    <div className="text-xs text-on-surface-variant mt-1">{product.location}</div>
+                    <div className="text-sm text-on-surface">{product.petani?.name || 'Petani'}</div>
+                    <div className="text-xs text-on-surface-variant mt-1">{product.petani?.location || 'Lokasi'}</div>
                   </td>
                   <td className="px-4 py-4">
-                    <div className="text-sm font-mono font-semibold text-on-surface">Rp {product.price}<span className="text-xs text-on-surface-variant font-normal">/kg</span></div>
-                    <div className="text-xs font-mono text-on-surface-variant mt-1">Stok: {product.stock} kg</div>
+                    <div className="text-sm font-mono font-semibold text-on-surface">Rp {(product.harga || 0).toLocaleString('id-ID')}<span className="text-xs text-on-surface-variant font-normal">/kg</span></div>
+                    <div className="text-xs font-mono text-on-surface-variant mt-1">Stok: {product.stok} kg</div>
                   </td>
                   <td className="px-4 py-4">
                     {product.status === 'pending' && (
@@ -197,7 +191,7 @@ export function ModerasiProdukPage() {
                     )}
                   </td>
                   <td className="px-4 py-4 text-sm text-on-surface-variant">
-                    {product.date}
+                    {new Date(product.created_at).toLocaleDateString('id-ID')}
                   </td>
                   <td className="px-4 py-4 text-right">
                     {product.status === 'pending' ? (
@@ -247,8 +241,8 @@ export function ModerasiProdukPage() {
               {/* Left: Image & Quick Stats */}
               <div className="w-full md:w-1/3 flex flex-col gap-4">
                 <div className="aspect-square rounded-lg overflow-hidden bg-surface-variant border border-outline-variant/30 flex items-center justify-center text-secondary/50">
-                  {selectedProduct?.image ? (
-                    <img alt={selectedProduct?.name} className="w-full h-full object-cover" src={selectedProduct.image} />
+                  {selectedProduct?.foto_url ? (
+                    <img alt={selectedProduct?.komoditas?.nama || 'Produk'} className="w-full h-full object-cover" src={selectedProduct.foto_url} />
                   ) : (
                     <span className="material-symbols-outlined text-4xl">image</span>
                   )}
@@ -264,23 +258,23 @@ export function ModerasiProdukPage() {
                   {selectedProduct?.status === 'rejected' && (
                     <span className="inline-flex items-center self-start px-2.5 py-1 rounded-full text-xs font-mono uppercase bg-danger/10 text-danger">Ditolak</span>
                   )}
-                  <div className="text-xs text-on-surface-variant mt-1">Didaftarkan: {selectedProduct?.date}</div>
+                  <div className="text-xs text-on-surface-variant mt-1">Didaftarkan: {selectedProduct?.created_at ? new Date(selectedProduct.created_at).toLocaleDateString('id-ID') : '-'}</div>
                 </div>
               </div>
               
               {/* Right: Details */}
               <div className="w-full md:w-2/3 flex flex-col gap-6">
                 <div>
-                  <div className="text-xs font-mono text-primary mb-1">Kategori: {selectedProduct?.category}</div>
-                  <h2 className="text-2xl font-bold text-on-surface leading-tight">{selectedProduct?.name}</h2>
+                  <div className="text-xs font-mono text-primary mb-1">Kategori: {selectedProduct?.komoditas?.kategori || 'Kategori'}</div>
+                  <h2 className="text-2xl font-bold text-on-surface leading-tight">{selectedProduct?.komoditas?.nama || selectedProduct?.komoditas_id || 'Produk'}</h2>
                   <div className="flex gap-6 mt-4">
                     <div>
                       <div className="text-sm text-on-surface-variant mb-1">Harga Diajukan</div>
-                      <div className="text-lg font-mono font-bold text-on-surface">Rp {selectedProduct?.price}<span className="text-sm font-normal text-on-surface-variant">/kg</span></div>
+                      <div className="text-lg font-mono font-bold text-on-surface">Rp {(selectedProduct?.harga || 0).toLocaleString('id-ID')}<span className="text-sm font-normal text-on-surface-variant">/kg</span></div>
                     </div>
                     <div>
                       <div className="text-sm text-on-surface-variant mb-1">Ketersediaan Stok</div>
-                      <div className="text-lg font-mono font-bold text-on-surface">{selectedProduct?.stock}<span className="text-sm font-normal text-on-surface-variant"> kg</span></div>
+                      <div className="text-lg font-mono font-bold text-on-surface">{selectedProduct?.stok}<span className="text-sm font-normal text-on-surface-variant"> kg</span></div>
                     </div>
                   </div>
                 </div>
@@ -303,10 +297,10 @@ export function ModerasiProdukPage() {
                       <span className="material-symbols-outlined">person</span>
                     </div>
                     <div className="flex-1">
-                      <div className="text-sm font-semibold text-on-surface">{selectedProduct?.farmer}</div>
+                      <div className="text-sm font-semibold text-on-surface">{selectedProduct?.petani?.name || 'Petani'}</div>
                       <div className="flex items-center gap-1 text-xs text-on-surface-variant mt-0.5">
                         <span className="material-symbols-outlined text-[14px]">location_on</span>
-                        {selectedProduct?.location}
+                        {selectedProduct?.petani?.location || 'Lokasi tidak tersedia'}
                       </div>
                     </div>
                     <button className="text-primary hover:text-brand-green font-semibold underline text-sm">Lihat Profil</button>
