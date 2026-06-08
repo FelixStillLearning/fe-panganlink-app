@@ -1,12 +1,33 @@
+import { useEffect, useState } from 'react'
 import { StatCard, SectionCard, Badge, Button } from '../../components/ui'
-
-const recentPurchases = [
-  { id: '#ORD-205', product: 'Beras Organik',    qty: '25 kg', seller: 'Budi Santoso',  status: 'Dikirim',  date: '08 Jun 2026' },
-  { id: '#ORD-204', product: 'Cabai Merah',       qty: '2 kg',  seller: 'Tani Makmur',   status: 'Selesai',  date: '06 Jun 2026' },
-  { id: '#ORD-203', product: 'Madu Hutan',         qty: '1 btl', seller: 'Desa Wangi',    status: 'Selesai',  date: '04 Jun 2026' },
-]
+import { pembeliApi, authApi } from '../../lib/services'
 
 export function PembeliDashboardPage() {
+  const [user, setUser] = useState<any>(null)
+  const [stats, setStats] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    Promise.all([
+      authApi.getMe(),
+      pembeliApi.getDashboard()
+    ]).then(([meRes, statsRes]: any) => {
+      setUser(meRes.user)
+      setStats(statsRes.data)
+      setLoading(false)
+    }).catch((err) => {
+      console.error(err)
+      setLoading(false)
+    })
+  }, [])
+
+  if (loading) {
+    return <div className="p-8 text-center text-secondary">Memuat dashboard...</div>
+  }
+
+  const name = user?.name ? user.name.split(' ')[0] : 'Pembeli'
+  const recentOrders = stats?.recent_orders?.slice(0, 5) || []
+
   return (
     <div className="space-y-6 max-w-7xl">
       {/* Welcome */}
@@ -15,7 +36,7 @@ export function PembeliDashboardPage() {
           {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </p>
         <h2 className="text-2xl md:text-3xl font-bold text-on-surface mt-1">
-          Halo, Rini! 🛒
+          Halo, {name}! 🛒
         </h2>
         <p className="text-secondary text-sm mt-1 max-w-xl">
           Temukan produk segar langsung dari petani terpercaya.
@@ -24,10 +45,10 @@ export function PembeliDashboardPage() {
 
       {/* Stats */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="Total Pembelian" value={18}          icon="shopping_bag"  iconColor="text-primary" delay={1} />
-        <StatCard label="Dalam Pengiriman" value={2}          icon="local_shipping" iconColor="text-tertiary" delay={2} />
-        <StatCard label="Total Belanja"   value="Rp 1,8 jt"  icon="payments"      iconColor="text-success"  trend="+8% bulan ini" trendUp delay={3} />
-        <StatCard label="Produk Favorit"  value={7}           icon="favorite"      iconColor="text-danger"   delay={4} />
+        <StatCard label="Total Pembelian" value={stats?.total_pembelian || 0}          icon="shopping_bag"  iconColor="text-primary" delay={1} />
+        <StatCard label="Dalam Pengiriman" value={stats?.dalam_pengiriman || 0}          icon="local_shipping" iconColor="text-tertiary" delay={2} />
+        <StatCard label="Total Belanja"   value={`Rp ${(stats?.total_belanja || 0).toLocaleString('id-ID')}`}  icon="payments"      iconColor="text-success"  trend="" trendUp delay={3} />
+        <StatCard label="Produk Favorit"  value={stats?.produk_favorit || 0}           icon="favorite"      iconColor="text-danger"   delay={4} />
       </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -50,20 +71,30 @@ export function PembeliDashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {recentPurchases.map((order) => (
+                  {recentOrders.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="py-8 text-center text-secondary">Belum ada pesanan</td>
+                    </tr>
+                  ) : recentOrders.map((order: any) => (
                     <tr
                       key={order.id}
                       className="border-b border-outline-variant/10 hover:bg-surface-container/50 transition-colors"
                     >
                       <td className="py-3 px-2 font-mono text-primary text-[12px] font-semibold">{order.id}</td>
-                      <td className="py-3 px-2 font-medium text-on-surface">{order.product}</td>
-                      <td className="py-3 px-2 text-[12px] text-secondary">{order.seller}</td>
+                      <td className="py-3 px-2 font-medium text-on-surface">
+                        {order.items?.map((i: any) => i.product?.komoditas?.nama || 'Produk').join(', ')}
+                      </td>
+                      <td className="py-3 px-2 text-[12px] text-secondary">
+                        {order.items?.[0]?.product?.petani?.name || 'Petani'}
+                      </td>
                       <td className="py-3 px-2">
-                        <Badge variant={order.status === 'Selesai' ? 'success' : 'info'}>
+                        <Badge variant={order.status === 'selesai' || order.status === 'success' ? 'success' : order.status === 'pending' || order.status === 'menunggu' ? 'warning' : 'info'}>
                           {order.status}
                         </Badge>
                       </td>
-                      <td className="py-3 px-2 text-[12px] text-secondary">{order.date}</td>
+                      <td className="py-3 px-2 text-[12px] text-secondary">
+                        {new Date(order.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

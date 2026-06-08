@@ -74,3 +74,25 @@ export const petaniApi = {
   getProfile: () => api.get('/v1/petani/profile'),
   updateProfile: (data: any) => api.put('/v1/petani/profile', data),
 };
+
+// ==========================================
+// 5. PEMBELI APIS
+// ==========================================
+export const pembeliApi = {
+  getDashboard: () => api.get('/v1/pembeli/dashboard'),
+  
+  // Products
+  getProducts: () => api.get('/v1/pembeli/products'),
+  
+  // Orders
+  getOrders: () => api.get('/v1/pembeli/orders'),
+  checkout: (data: any) => api.post('/v1/pembeli/orders/checkout', data),
+  updateOrderStatus: (id: string, status: string) => api.put(`/v1/pembeli/orders/${id}/status`, { status }),
+  
+  // History
+  getHistory: () => api.get('/v1/pembeli/history'),
+  
+  // Profile
+  getProfile: () => api.get('/v1/pembeli/profile'),
+  updateProfile: (data: any) => api.put('/v1/pembeli/profile', data),
+};
