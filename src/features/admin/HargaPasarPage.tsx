@@ -1,36 +1,56 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { api } from '../../lib/api'
 
 export function HargaPasarPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  
-  // Generate dummy data
-  const generateData = () => {
-    const data = []
-    const items = ['Beras', 'Jagung', 'Kedelai', 'Beras', 'Beras']
-    const prices = ['14.250', '8.500', '11.200', '14.300', '14.200']
-    
-    for(let i=0; i<10; i++) {
-      data.push({
-        id: i,
-        date: `${8 + i} Jun 2026`,
-        item: items[i % 5],
-        price: prices[i % 5],
-        region: 'Nasional'
-      })
+  const [tableData, setTableData] = useState<any[]>([])
+
+  const fetchMarketPrices = async () => {
+    try {
+      const res = await api.get<any>('/v1/admin/market-prices')
+      setTableData(res.data || [])
+    } catch (err) {
+      console.error('Failed to fetch market prices:', err)
     }
-    return data
   }
 
-  const [tableData, setTableData] = useState(generateData())
+  useEffect(() => {
+    fetchMarketPrices()
+  }, [])
 
-  const handleDelete = (id: number) => {
-    setTableData(prev => prev.filter(row => row.id !== id))
+  const handleDelete = async (id: string) => {
+    try {
+      await api.delete(`/v1/admin/market-prices/${id}`)
+      setTableData(prev => prev.filter(row => row.id !== id))
+    } catch (err) {
+      console.error('Failed to delete market price:', err)
+      alert('Gagal menghapus data harga pasar.')
+    }
   }
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsModalOpen(false)
-    alert("Data Harga Pasar berhasil ditambahkan!")
+    const form = e.target as HTMLFormElement
+    const item = (form.elements.namedItem('komoditas') as HTMLSelectElement).value
+    const dateStr = (form.elements.namedItem('tanggal') as HTMLInputElement).value
+    const priceStr = (form.elements.namedItem('harga') as HTMLInputElement).value
+    const region = (form.elements.namedItem('wilayah') as HTMLInputElement).value
+
+    try {
+      const payload = {
+        item,
+        date: new Date(dateStr).toISOString(),
+        price: parseFloat(priceStr),
+        region
+      }
+      await api.post('/v1/admin/market-prices', payload)
+      await fetchMarketPrices()
+      setIsModalOpen(false)
+      alert("Data Harga Pasar berhasil ditambahkan!")
+    } catch (err) {
+      console.error('Failed to save market price:', err)
+      alert('Gagal menyimpan data harga pasar.')
+    }
   }
 
   return (
@@ -106,9 +126,11 @@ export function HargaPasarPage() {
             <tbody className="text-sm text-on-surface divide-y divide-outline-variant/20">
               {tableData.map((row) => (
                 <tr key={row.id} className="hover:bg-surface-container-low transition-colors group">
-                  <td className="py-4 px-6 text-secondary">{row.date}</td>
+                  <td className="py-4 px-6 text-secondary">
+                    {new Date(row.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  </td>
                   <td className="py-4 px-6 font-medium">{row.item}</td>
-                  <td className="py-4 px-6 font-mono font-bold text-primary">Rp {row.price}</td>
+                  <td className="py-4 px-6 font-mono font-bold text-primary">Rp {row.price.toLocaleString('id-ID')}</td>
                   <td className="py-4 px-6">
                     <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-surface-variant text-on-surface-variant">
                       {row.region}
@@ -156,7 +178,7 @@ export function HargaPasarPage() {
               <div className="flex flex-col gap-1">
                 <label className="text-sm text-secondary">Komoditas</label>
                 <div className="relative">
-                  <select required className="w-full appearance-none bg-surface border border-outline-variant rounded-lg px-4 py-2 text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary-muted outline-none transition-all cursor-pointer">
+                  <select name="komoditas" required className="w-full appearance-none bg-surface border border-outline-variant rounded-lg px-4 py-2 text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary-muted outline-none transition-all cursor-pointer">
                     <option value="">Pilih Komoditas</option>
                     <option value="Beras">Beras</option>
                     <option value="Jagung">Jagung</option>
@@ -167,15 +189,15 @@ export function HargaPasarPage() {
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-sm text-secondary">Tanggal</label>
-                <input required className="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2 text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary-muted outline-none transition-all" type="date"/>
+                <input name="tanggal" required className="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2 text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary-muted outline-none transition-all" type="date"/>
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-sm text-secondary">Harga (Rp)</label>
-                <input required className="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2 text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary-muted outline-none transition-all" placeholder="14000" type="number"/>
+                <input name="harga" required className="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2 text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary-muted outline-none transition-all" placeholder="14000" type="number"/>
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-sm text-secondary">Wilayah</label>
-                <input required className="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2 text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary-muted outline-none transition-all" type="text" defaultValue="Nasional"/>
+                <input name="wilayah" required className="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2 text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary-muted outline-none transition-all" type="text" defaultValue="Nasional"/>
               </div>
               <div className="pt-4 border-t border-outline-variant/30 flex justify-end gap-3 mt-2">
                 <button type="button" className="px-4 py-2 rounded-lg text-sm font-medium border border-outline-variant hover:bg-surface-container-low transition-colors" onClick={() => setIsModalOpen(false)}>
