@@ -65,6 +65,17 @@ export function PetaniProdukPage() {
       >
         <div className="space-y-5">
           <div>
+            <label className="block text-[11px] font-bold text-secondary uppercase tracking-wider mb-1.5">Foto Produk</label>
+            <label className="block border-2 border-dashed border-outline-variant/60 rounded-xl p-6 text-center hover:border-primary/50 hover:bg-brand-green-muted transition-colors cursor-pointer group">
+              <div className="w-12 h-12 bg-surface-container-high rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-primary/10 transition-colors">
+                <span className="material-symbols-outlined text-secondary group-hover:text-primary">add_photo_alternate</span>
+              </div>
+              <p className="text-sm font-medium text-on-surface">Klik untuk unggah foto</p>
+              <p className="text-[11px] text-secondary mt-1">Format JPG, PNG (Max. 2MB)</p>
+              <input type="file" className="hidden" accept="image/*" />
+            </label>
+          </div>
+          <div>
             <label className="block text-[11px] font-bold text-secondary uppercase tracking-wider mb-1.5">Nama Produk</label>
             <input type="text" className="w-full bg-transparent text-sm text-on-surface p-2.5 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none transition-all" placeholder="Cth: Beras Rojolele Premium" />
           </div>
