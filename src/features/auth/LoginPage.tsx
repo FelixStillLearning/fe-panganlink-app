@@ -74,7 +74,7 @@ export function LoginPage() {
                   type="email" 
                   name="email"
                   required
-                  defaultValue="pembeli@example.com"
+                  placeholder="Masukkan email Anda"
                   className="w-full pl-11 pr-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-xl text-sm focus:border-primary focus:ring-2 focus:ring-primary-muted transition-all"
                 />
               </div>
