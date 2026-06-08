@@ -1,14 +1,22 @@
 import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { api } from '../../lib/api'
 
 export function LandingPage() {
   const [scrolled, setScrolled] = useState(false)
+  const [stats, setStats] = useState<{ total_petani: number; total_transaksi: number; produk_aktif: number } | null>(null)
+  const [testimonials, setTestimonials] = useState<string[]>([])
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20)
     }
     window.addEventListener('scroll', handleScroll, { passive: true })
+    
+    // Fetch real data
+    api.get<any>('/v1/public/stats').then(res => setStats(res)).catch(console.error)
+    api.get<any>('/v1/public/testimonials').then(res => setTestimonials(res.data)).catch(console.error)
+
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
@@ -228,29 +236,23 @@ export function LandingPage() {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="bg-surface-container-lowest p-8 rounded-2xl shadow-soft border border-outline-variant/30 relative opacity-0 animate-fadeUp stagger-1">
-                <span className="material-symbols-outlined absolute top-6 right-6 text-4xl text-primary/10">format_quote</span>
-                <p className="text-on-surface-variant italic mb-6 leading-relaxed">"Semenjak menggunakan PanganLink, saya tahu pasti harga pasaran jagung saya lewat fitur prediksi AI. Tidak ada lagi tengkulak yang mempermainkan harga panen saya."</p>
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-surface-variant flex items-center justify-center text-primary font-bold text-lg">W</div>
-                  <div>
-                    <h4 className="font-bold text-on-surface">Pak Wahyudi</h4>
-                    <p className="text-xs text-secondary">Petani Jagung, Jawa Timur</p>
+              {testimonials.length > 0 ? (
+                testimonials.map((testi: any, idx) => (
+                  <div key={idx} className={`bg-surface-container-lowest p-8 rounded-2xl shadow-soft border border-outline-variant/30 relative opacity-0 animate-fadeUp stagger-${idx + 1}`}>
+                    <span className="material-symbols-outlined absolute top-6 right-6 text-4xl text-primary/10">format_quote</span>
+                    <p className="text-on-surface-variant italic mb-6 leading-relaxed">"{testi.text}"</p>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-surface-variant flex items-center justify-center text-primary font-bold text-lg">{testi.initial}</div>
+                      <div>
+                        <h4 className="font-bold text-on-surface">{testi.name}</h4>
+                        <p className="text-xs text-secondary">{testi.role}</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-
-              <div className="bg-surface-container-lowest p-8 rounded-2xl shadow-soft border border-outline-variant/30 relative opacity-0 animate-fadeUp stagger-2">
-                <span className="material-symbols-outlined absolute top-6 right-6 text-4xl text-primary/10">format_quote</span>
-                <p className="text-on-surface-variant italic mb-6 leading-relaxed">"Sangat membantu bisnis katering kami! Harga bahan pokok jauh lebih stabil dan wajar dibanding beli dari pasar tangan ketiga. Kualitas sayurnya pun dijamin segar."</p>
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-surface-variant flex items-center justify-center text-primary font-bold text-lg">I</div>
-                  <div>
-                    <h4 className="font-bold text-on-surface">Ibu Ningsih</h4>
-                    <p className="text-xs text-secondary">Pemilik Katering, Jakarta</p>
-                  </div>
-                </div>
-              </div>
+                ))
+              ) : (
+                <div className="col-span-2 text-center text-secondary py-8">Memuat ulasan...</div>
+              )}
             </div>
           </div>
         </section>
@@ -260,16 +262,22 @@ export function LandingPage() {
           <div className="max-w-7xl mx-auto px-6 lg:px-12 opacity-0 animate-fadeUp">
             <div className="flex flex-col md:flex-row justify-center items-center gap-12 md:gap-[100px] divide-y md:divide-y-0 md:divide-x divide-secondary-container">
               <div className="text-center w-full md:w-auto py-4 md:py-0 md:px-8">
-                <div className="text-[48px] md:text-[64px] font-bold text-primary mb-2 tracking-tight">100+</div>
+                <div className="text-[48px] md:text-[64px] font-bold text-primary mb-2 tracking-tight">
+                  {stats ? `${stats.total_petani}+` : '...'}
+                </div>
                 <div className="text-sm font-semibold text-secondary uppercase tracking-wider">Petani Bergabung</div>
               </div>
               <div className="text-center w-full md:w-auto py-4 md:py-0 md:px-8">
-                <div className="text-[48px] md:text-[64px] font-bold text-primary mb-2 tracking-tight">500+</div>
-                <div className="text-sm font-semibold text-secondary uppercase tracking-wider">Pembeli Aktif</div>
+                <div className="text-[48px] md:text-[64px] font-bold text-primary mb-2 tracking-tight">
+                  {stats ? `${stats.total_transaksi}+` : '...'}
+                </div>
+                <div className="text-sm font-semibold text-secondary uppercase tracking-wider">Transaksi Sukses</div>
               </div>
               <div className="text-center w-full md:w-auto py-4 md:py-0 md:px-8">
-                <div className="text-[48px] md:text-[64px] font-bold text-primary mb-2 tracking-tight">3</div>
-                <div className="text-sm font-semibold text-secondary uppercase tracking-wider">Komoditas Utama</div>
+                <div className="text-[48px] md:text-[64px] font-bold text-primary mb-2 tracking-tight">
+                  {stats ? stats.produk_aktif : '...'}
+                </div>
+                <div className="text-sm font-semibold text-secondary uppercase tracking-wider">Produk Aktif</div>
               </div>
             </div>
           </div>
