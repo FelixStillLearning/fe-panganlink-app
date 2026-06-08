@@ -10,7 +10,7 @@ export function PetaniProfilPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1">
-          <SectionCard className="text-center flex flex-col items-center">
+          <SectionCard title="Profil Utama" className="text-center flex flex-col items-center">
             <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mb-4">
               <span className="material-symbols-outlined text-4xl text-primary">person</span>
             </div>

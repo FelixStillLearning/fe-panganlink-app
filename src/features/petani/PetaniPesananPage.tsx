@@ -34,7 +34,7 @@ export function PetaniPesananPage() {
                   <td className="py-3 px-2 text-secondary">{o.product} ({o.qty})</td>
                   <td className="py-3 px-2 font-mono text-primary text-[12px] font-semibold">{o.total}</td>
                   <td className="py-3 px-2">
-                    <Badge variant={o.status === 'Menunggu Konfirmasi' ? 'warning' : 'primary'}>{o.status}</Badge>
+                    <Badge variant={o.status === 'Menunggu Konfirmasi' ? 'warning' : 'info'}>{o.status}</Badge>
                   </td>
                   <td className="py-3 px-2 text-right">
                     <Button variant="outline" size="sm">Update</Button>

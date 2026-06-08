@@ -153,7 +153,7 @@ export function TrenHargaPage() {
         ticks: { font: { family: 'JetBrains Mono', size: 10 }, color: '#4f453e' }
       },
       y: {
-        grid: { color: '#e7e1db', borderDash: [5, 5] },
+        grid: { color: '#e7e1db' },
         ticks: {
           font: { family: 'JetBrains Mono', size: 10 },
           color: '#4f453e',
