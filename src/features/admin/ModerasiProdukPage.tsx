@@ -3,6 +3,7 @@ import { useState } from 'react'
 export function ModerasiProdukPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<any>(null)
+  const [activeTab, setActiveTab] = useState('all')
 
   const [products, setProducts] = useState([
     {
@@ -41,6 +42,11 @@ export function ModerasiProdukPage() {
     setIsModalOpen(true)
   }
 
+  const filteredProducts = products.filter(p => {
+    if (activeTab === 'all') return true
+    return p.status === activeTab
+  })
+
   return (
     <div className="flex flex-col gap-6">
       {/* Page Header */}
@@ -67,17 +73,31 @@ export function ModerasiProdukPage() {
 
       {/* Tab System */}
       <div className="flex overflow-x-auto hide-scrollbar gap-2 border-b border-outline-variant/30 pb-1">
-        <button className="px-4 py-2 font-bold text-base text-primary border-b-2 border-primary whitespace-nowrap">
+        <button 
+          onClick={() => setActiveTab('all')}
+          className={`px-4 py-2 font-bold text-base whitespace-nowrap transition-colors ${activeTab === 'all' ? 'text-primary border-b-2 border-primary' : 'text-secondary hover:text-primary'}`}
+        >
           Semua Produk
         </button>
-        <button className="px-4 py-2 font-semibold text-base text-secondary hover:text-primary transition-colors whitespace-nowrap flex items-center gap-1">
+        <button 
+          onClick={() => setActiveTab('pending')}
+          className={`px-4 py-2 font-bold text-base whitespace-nowrap transition-colors flex items-center gap-1 ${activeTab === 'pending' ? 'text-primary border-b-2 border-primary' : 'text-secondary hover:text-primary'}`}
+        >
           Menunggu Review
-          <span className="bg-danger/10 text-danger text-xs px-2 py-0.5 rounded-full">5</span>
+          {products.filter(p => p.status === 'pending').length > 0 && (
+            <span className="bg-danger/10 text-danger text-xs px-2 py-0.5 rounded-full">{products.filter(p => p.status === 'pending').length}</span>
+          )}
         </button>
-        <button className="px-4 py-2 font-semibold text-base text-secondary hover:text-primary transition-colors whitespace-nowrap">
+        <button 
+          onClick={() => setActiveTab('approved')}
+          className={`px-4 py-2 font-bold text-base whitespace-nowrap transition-colors ${activeTab === 'approved' ? 'text-primary border-b-2 border-primary' : 'text-secondary hover:text-primary'}`}
+        >
           Disetujui
         </button>
-        <button className="px-4 py-2 font-semibold text-base text-secondary hover:text-primary transition-colors whitespace-nowrap">
+        <button 
+          onClick={() => setActiveTab('rejected')}
+          className={`px-4 py-2 font-bold text-base whitespace-nowrap transition-colors ${activeTab === 'rejected' ? 'text-primary border-b-2 border-primary' : 'text-secondary hover:text-primary'}`}
+        >
           Ditolak
         </button>
       </div>
@@ -138,7 +158,7 @@ export function ModerasiProdukPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/20">
-              {products.map((product) => (
+              {filteredProducts.map((product) => (
                 <tr key={product.id} className="hover:bg-surface-container-low transition-colors group">
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-3">

@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 
 // Navigation config — admin sidebar
@@ -92,11 +92,16 @@ export function Sidebar({
   onClose,
 }: SidebarProps) {
   const location = useLocation()
+  const navigate = useNavigate()
 
   // close mobile sidebar on route change
   useEffect(() => {
     onClose?.()
   }, [location.pathname]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleLogout = () => {
+    navigate('/')
+  }
 
   const roleColor: Record<string, string> = {
     Admin: 'bg-primary text-white',
@@ -166,7 +171,7 @@ export function Sidebar({
 
         {/* Logout */}
         <div className="px-3 pb-5">
-          <button className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-danger hover:bg-danger/8 transition-all duration-200 group">
+          <button onClick={handleLogout} className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-danger hover:bg-danger/8 transition-all duration-200 group">
             <span className="material-symbols-outlined text-[20px] transition-transform duration-200 group-hover:translate-x-0.5">
               logout
             </span>
@@ -233,7 +238,7 @@ export function Sidebar({
         )}
 
         <div className="px-3 pb-5">
-          <button className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-danger hover:bg-danger/8 transition-all duration-200">
+          <button onClick={handleLogout} className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-danger hover:bg-danger/8 transition-all duration-200">
             <span className="material-symbols-outlined text-[20px]">logout</span>
             <span className="text-sm font-medium">Keluar</span>
           </button>
