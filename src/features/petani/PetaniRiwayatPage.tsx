@@ -1,11 +1,46 @@
+import { useState, useEffect } from 'react'
 import { SectionCard, Badge } from '../../components/ui'
-
-const history = [
-  { id: '#ORD-091', product: 'Cabai Merah', qty: '15 kg', total: 'Rp 675.000', buyer: 'Bapak Rudi', status: 'Selesai', date: '07 Jun 2026' },
-  { id: '#ORD-090', product: 'Bawang Merah', qty: '30 kg', total: 'Rp 840.000', buyer: 'Toko Lestari', status: 'Selesai', date: '06 Jun 2026' },
-]
+import { petaniApi } from '../../lib/services'
 
 export function PetaniRiwayatPage() {
+  const [history, setHistory] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchHistory()
+  }, [])
+
+  const fetchHistory = async () => {
+    setLoading(true)
+    try {
+      // In the backend GetHistory uses the same GetPetaniOrders service
+      const res = await petaniApi.getHistory()
+      // Filter out only completed or canceled orders
+      const completedOrders = ((res as any).data || []).filter((o: any) => 
+        o.status === 'selesai' || o.status === 'success' || o.status === 'canceled' || o.status === 'rejected'
+      )
+      // Sort by newest first
+      completedOrders.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      setHistory(completedOrders)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
+  }
+
+  const formatRupiah = (amount: number) => {
+    return `Rp ${amount.toLocaleString('id-ID')}`
+  }
+
+  if (loading) {
+    return <div className="p-8 text-center text-secondary">Memuat riwayat penjualan...</div>
+  }
+
   return (
     <div className="space-y-6 max-w-7xl animate-fadeUp">
       <div>
@@ -20,20 +55,26 @@ export function PetaniRiwayatPage() {
               <tr className="text-[10px] font-bold text-secondary uppercase tracking-wider border-b border-outline-variant/20">
                 <th className="text-left py-2 px-2">Tanggal</th>
                 <th className="text-left py-2 px-2">ID Pesanan</th>
+                <th className="text-left py-2 px-2">Pembeli</th>
                 <th className="text-left py-2 px-2">Produk</th>
                 <th className="text-left py-2 px-2">Total Pendapatan</th>
                 <th className="text-left py-2 px-2">Status</th>
               </tr>
             </thead>
             <tbody>
-              {history.map((h) => (
+              {history.length === 0 ? (
+                <tr><td colSpan={6} className="py-8 text-center text-secondary">Belum ada riwayat penjualan</td></tr>
+              ) : history.map((h) => (
                 <tr key={h.id} className="border-b border-outline-variant/10 hover:bg-surface-container/50 transition-colors">
-                  <td className="py-3 px-2 text-[12px] text-secondary">{h.date}</td>
+                  <td className="py-3 px-2 text-[12px] text-secondary">{formatDate(h.created_at)}</td>
                   <td className="py-3 px-2 font-mono text-primary text-[12px] font-semibold">{h.id}</td>
-                  <td className="py-3 px-2 text-on-surface">{h.product} ({h.qty})</td>
-                  <td className="py-3 px-2 font-mono text-success text-[12px] font-semibold">{h.total}</td>
+                  <td className="py-3 px-2 text-on-surface">{h.buyer?.name || 'Guest'}</td>
+                  <td className="py-3 px-2 text-on-surface">
+                    {h.items?.map((item: any) => `${item.product?.komoditas?.nama || 'Produk'} (${item.jumlah}kg)`).join(', ')}
+                  </td>
+                  <td className="py-3 px-2 font-mono text-success text-[12px] font-semibold">{formatRupiah(h.total_harga)}</td>
                   <td className="py-3 px-2">
-                    <Badge variant="success">{h.status}</Badge>
+                    <Badge variant={h.status === 'selesai' || h.status === 'success' ? 'success' : 'error'}>{h.status}</Badge>
                   </td>
                 </tr>
               ))}
