@@ -1,26 +1,44 @@
-import { useState } from 'react'
-import { SectionCard, Badge, Button, EmptyState } from '../../components/ui'
-
-const mockProducts = [
-  { id: 1, name: 'Beras Organik Mentik Wangi', price: 'Rp 18.000', unit: '/ kg', seller: 'Kelompok Tani Makmur', category: 'Beras & Biji', image: '🌾', stock: 50 },
-  { id: 2, name: 'Cabai Merah Keriting', price: 'Rp 45.000', unit: '/ kg', seller: 'Budi Santoso', category: 'Sayuran', image: '🌶️', stock: 15 },
-  { id: 3, name: 'Tomat Cherry Hidroponik', price: 'Rp 22.000', unit: '/ kg', seller: 'Kebun Ceria', category: 'Sayuran', image: '🍅', stock: 8 },
-  { id: 4, name: 'Madu Hutan Asli', price: 'Rp 85.000', unit: '/ btl', seller: 'Desa Wangi', category: 'Madu & Olahan', image: '🍯', stock: 20 },
-  { id: 5, name: 'Kopi Arabika Gayo', price: 'Rp 65.000', unit: '/ 250g', seller: 'Kopi Nusantara', category: 'Kopi & Teh', image: '☕', stock: 30 },
-  { id: 6, name: 'Bawang Merah Brebes', price: 'Rp 35.000', unit: '/ kg', seller: 'Tani Jaya', category: 'Rempah', image: '🧅', stock: 100 },
-]
+import { useState, useEffect } from 'react'
+import { SectionCard, Button, EmptyState } from '../../components/ui'
+import { pembeliApi } from '../../lib/services'
 
 const categories = ['Semua', 'Sayuran', 'Buah', 'Beras & Biji', 'Rempah', 'Madu & Olahan', 'Kopi & Teh']
 
 export function PembeliBrowsePage() {
   const [activeCategory, setActiveCategory] = useState('Semua')
   const [searchQuery, setSearchQuery] = useState('')
+  const [products, setProducts] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const filteredProducts = mockProducts.filter(p => {
-    const matchCat = activeCategory === 'Semua' || p.category === activeCategory
-    const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.seller.toLowerCase().includes(searchQuery.toLowerCase())
+  useEffect(() => {
+    fetchProducts()
+  }, [])
+
+  const fetchProducts = async () => {
+    try {
+      const res = await pembeliApi.getProducts()
+      setProducts((res as any).data || [])
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const filteredProducts = products.filter(p => {
+    const category = p.komoditas?.kategori || ''
+    const matchCat = activeCategory === 'Semua' || category.toLowerCase() === activeCategory.toLowerCase()
+    
+    const name = p.komoditas?.nama || ''
+    const seller = p.petani?.farm_name || p.petani?.name || ''
+    const matchSearch = name.toLowerCase().includes(searchQuery.toLowerCase()) || seller.toLowerCase().includes(searchQuery.toLowerCase())
+    
     return matchCat && matchSearch
   })
+
+  if (loading) {
+    return <div className="p-8 text-center text-secondary">Memuat produk...</div>
+  }
 
   return (
     <div className="space-y-6 max-w-7xl">
@@ -66,25 +84,34 @@ export function PembeliBrowsePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 opacity-0 animate-fadeUp stagger-2">
           {filteredProducts.map(product => (
             <div key={product.id} className="bg-surface-container-lowest border border-outline-variant/20 rounded-2xl overflow-hidden hover-lift interactive-card group flex flex-col">
-              <div className="h-40 bg-surface-container flex items-center justify-center text-6xl group-hover:scale-110 transition-transform duration-300">
-                {product.image}
+              <div className="h-40 bg-surface-container flex items-center justify-center overflow-hidden">
+                {product.foto_url ? (
+                  <img src={product.foto_url} alt={product.komoditas?.nama} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                ) : (
+                  <div className="text-6xl group-hover:scale-110 transition-transform duration-300">
+                    {product.komoditas?.kategori === 'Sayuran' ? '🥬' :
+                     product.komoditas?.kategori === 'Buah' ? '🍎' :
+                     product.komoditas?.kategori === 'Beras & Biji' ? '🌾' :
+                     product.komoditas?.kategori === 'Madu & Olahan' ? '🍯' : '📦'}
+                  </div>
+                )}
               </div>
               <div className="p-4 flex-1 flex flex-col">
                 <div className="flex items-start justify-between gap-2 mb-1">
-                  <h3 className="font-semibold text-on-surface line-clamp-2 leading-tight">{product.name}</h3>
+                  <h3 className="font-semibold text-on-surface line-clamp-2 leading-tight">{product.komoditas?.nama}</h3>
                 </div>
                 <p className="text-xs text-secondary flex items-center gap-1 mb-3">
                   <span className="material-symbols-outlined text-[14px]">storefront</span>
-                  {product.seller}
+                  {product.petani?.farm_name || product.petani?.name}
                 </p>
                 
                 <div className="mt-auto">
                   <div className="flex items-baseline gap-1 mb-3">
-                    <span className="text-lg font-bold text-primary">{product.price}</span>
-                    <span className="text-xs text-secondary">{product.unit}</span>
+                    <span className="text-lg font-bold text-primary">Rp {product.harga?.toLocaleString('id-ID')}</span>
+                    <span className="text-xs text-secondary">/ {product.komoditas?.satuan || 'kg'}</span>
                   </div>
-                  <Button variant="primary" className="w-full" icon="add_shopping_cart">
-                    Keranjang
+                  <Button variant="primary" className="w-full" icon="add_shopping_cart" disabled={product.stok <= 0}>
+                    {product.stok > 0 ? 'Keranjang' : 'Stok Habis'}
                   </Button>
                 </div>
               </div>
