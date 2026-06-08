@@ -1,17 +1,62 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Badge, Button } from '../../components/ui'
-
-const mockOrders = [
-  { id: '#ORD-205', product: 'Beras Organik Mentik Wangi', qty: '25 kg', seller: 'Budi Santoso', status: 'Diproses', date: '08 Jun 2026', total: 'Rp 450.000' },
-  { id: '#ORD-204', product: 'Cabai Merah Keriting', qty: '2 kg', seller: 'Tani Makmur', status: 'Dikirim', date: '06 Jun 2026', total: 'Rp 90.000' },
-  { id: '#ORD-203', product: 'Madu Hutan Asli', qty: '1 btl', seller: 'Desa Wangi', status: 'Selesai', date: '04 Jun 2026', total: 'Rp 85.000' },
-]
+import { pembeliApi } from '../../lib/services'
 
 export function PembeliPesananPage() {
   const [activeTab, setActiveTab] = useState('Semua')
+  const [orders, setOrders] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
   const tabs = ['Semua', 'Menunggu Pembayaran', 'Diproses', 'Dikirim', 'Selesai']
 
-  const filteredOrders = mockOrders.filter(o => activeTab === 'Semua' || o.status === activeTab)
+  useEffect(() => {
+    fetchOrders()
+  }, [])
+
+  const fetchOrders = async () => {
+    try {
+      const res = await pembeliApi.getOrders()
+      const data = (res as any).data || []
+      // Only show non-completed/non-cancelled orders in 'Pesanan Saya' active view
+      // Unless they are Selesai, we might keep them in 'Semua' or 'Selesai' tab
+      setOrders(data)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleUpdateStatus = async (id: string, status: string) => {
+    try {
+      await pembeliApi.updateOrderStatus(id, status)
+      fetchOrders()
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const filteredOrders = orders.filter(o => {
+    // Map backend status to tab names
+    const statusMap: Record<string, string> = {
+      'pending': 'Menunggu Pembayaran',
+      'menunggu': 'Menunggu Pembayaran',
+      'diproses': 'Diproses',
+      'dikirim': 'Dikirim',
+      'selesai': 'Selesai',
+      'success': 'Selesai',
+      'batal': 'Dibatalkan',
+      'ditolak': 'Dibatalkan'
+    }
+    
+    const tabStatus = statusMap[o.status] || o.status
+    // Hide cancelled orders from this page
+    if (tabStatus === 'Dibatalkan') return false
+    
+    return activeTab === 'Semua' || tabStatus === activeTab
+  })
+
+  if (loading) return <div className="p-8 text-center text-secondary">Memuat pesanan...</div>
 
   return (
     <div className="space-y-6 max-w-5xl">
@@ -46,29 +91,40 @@ export function PembeliPesananPage() {
                 <span className="material-symbols-outlined text-primary text-2xl">local_mall</span>
                 <div>
                   <p className="text-xs text-secondary">ID Pesanan: <span className="font-mono font-medium text-on-surface">{order.id}</span></p>
-                  <p className="text-[11px] text-secondary">{order.date}</p>
+                  <p className="text-[11px] text-secondary">
+                    {new Date(order.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}
+                  </p>
                 </div>
               </div>
-              <Badge variant={order.status === 'Selesai' ? 'success' : order.status === 'Dikirim' ? 'info' : 'warning'}>
-                {order.status}
+              <Badge variant={order.status === 'selesai' || order.status === 'success' ? 'success' : order.status === 'dikirim' ? 'info' : 'warning'}>
+                {order.status.toUpperCase()}
               </Badge>
             </div>
             
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h4 className="font-semibold text-on-surface">{order.product}</h4>
-                <p className="text-sm text-secondary mt-1">{order.qty} • {order.seller}</p>
+                <h4 className="font-semibold text-on-surface">
+                  {order.items?.map((i: any) => i.product?.komoditas?.nama || 'Produk').join(', ')}
+                </h4>
+                <p className="text-sm text-secondary mt-1">
+                  {order.items?.length} jenis barang • {order.items?.[0]?.product?.petani?.farm_name || order.items?.[0]?.product?.petani?.name || 'Petani'}
+                </p>
               </div>
               <div className="text-right">
                 <p className="text-xs text-secondary">Total Belanja</p>
-                <p className="font-bold text-primary">{order.total}</p>
+                <p className="font-bold text-primary">Rp {order.total_harga?.toLocaleString('id-ID')}</p>
               </div>
             </div>
 
             <div className="mt-4 pt-4 border-t border-outline-variant/10 flex justify-end gap-2">
               <Button variant="outline" size="sm">Hubungi Penjual</Button>
-              {order.status === 'Selesai' && <Button variant="primary" size="sm">Beri Ulasan</Button>}
-              {order.status === 'Dikirim' && <Button variant="primary" size="sm">Lacak Pengiriman</Button>}
+              {(order.status === 'selesai' || order.status === 'success') && <Button variant="primary" size="sm">Beri Ulasan</Button>}
+              {order.status === 'dikirim' && (
+                <>
+                  <Button variant="outline" size="sm">Lacak Pengiriman</Button>
+                  <Button variant="primary" size="sm" onClick={() => handleUpdateStatus(order.id, 'selesai')}>Pesanan Diterima</Button>
+                </>
+              )}
             </div>
           </div>
         )) : (

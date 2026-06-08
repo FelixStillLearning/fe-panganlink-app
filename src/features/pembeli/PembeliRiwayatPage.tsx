@@ -1,12 +1,33 @@
+import { useState, useEffect } from 'react'
 import { SectionCard, Badge, Button } from '../../components/ui'
-
-const historyOrders = [
-  { id: '#ORD-101', product: 'Tomat Cherry', qty: '5 kg', seller: 'Kebun Ceria', date: '15 Mei 2026', total: 'Rp 110.000', status: 'Selesai' },
-  { id: '#ORD-098', product: 'Bawang Merah', qty: '10 kg', seller: 'Tani Jaya', date: '02 Mei 2026', total: 'Rp 350.000', status: 'Dibatalkan' },
-  { id: '#ORD-085', product: 'Kopi Arabika', qty: '2 pack', seller: 'Kopi Nusantara', date: '20 Apr 2026', total: 'Rp 130.000', status: 'Selesai' },
-]
+import { pembeliApi } from '../../lib/services'
 
 export function PembeliRiwayatPage() {
+  const [orders, setOrders] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchHistory()
+  }, [])
+
+  const fetchHistory = async () => {
+    try {
+      const res = await pembeliApi.getHistory()
+      const data = (res as any).data || []
+      // Filter for completed or cancelled orders only
+      const history = data.filter((o: any) => ['selesai', 'success', 'batal', 'ditolak'].includes(o.status.toLowerCase()))
+      // Sort by latest
+      history.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      setOrders(history)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) return <div className="p-8 text-center text-secondary">Memuat riwayat...</div>
+
   return (
     <div className="space-y-6 max-w-5xl">
       <div className="opacity-0 animate-fadeUp">
@@ -30,24 +51,34 @@ export function PembeliRiwayatPage() {
               </tr>
             </thead>
             <tbody>
-              {historyOrders.map((order) => (
+              {orders.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-secondary">Belum ada riwayat transaksi.</td>
+                </tr>
+              ) : orders.map((order) => (
                 <tr
                   key={order.id}
                   className="border-b border-outline-variant/10 hover:bg-surface-container/50 transition-colors"
                 >
                   <td className="py-3 px-2 font-mono text-primary text-[12px] font-semibold">{order.id}</td>
                   <td className="py-3 px-2">
-                    <p className="font-medium text-on-surface">{order.product}</p>
-                    <p className="text-[11px] text-secondary">{order.seller}</p>
+                    <p className="font-medium text-on-surface line-clamp-1 max-w-[200px]">
+                      {order.items?.map((i: any) => i.product?.komoditas?.nama || 'Produk').join(', ')}
+                    </p>
+                    <p className="text-[11px] text-secondary">
+                      {order.items?.[0]?.product?.petani?.farm_name || order.items?.[0]?.product?.petani?.name || 'Petani'}
+                    </p>
                   </td>
-                  <td className="py-3 px-2 font-medium">{order.total}</td>
+                  <td className="py-3 px-2 font-medium">Rp {order.total_harga?.toLocaleString('id-ID')}</td>
                   <td className="py-3 px-2">
-                    <Badge variant={order.status === 'Selesai' ? 'success' : 'danger'}>
-                      {order.status}
+                    <Badge variant={order.status === 'selesai' || order.status === 'success' ? 'success' : 'danger'}>
+                      {order.status.toUpperCase()}
                     </Badge>
                   </td>
-                  <td className="py-3 px-2 text-[12px] text-secondary">{order.date}</td>
-                  <td className="py-3 px-2">
+                  <td className="py-3 px-2 text-[12px] text-secondary">
+                    {new Date(order.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  </td>
+                  <td className="py-3 px-2 flex gap-1">
                     <Button variant="ghost" size="sm" icon="receipt">Nota</Button>
                   </td>
                 </tr>
