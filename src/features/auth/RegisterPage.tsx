@@ -1,0 +1,151 @@
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+
+export function RegisterPage() {
+  const [role, setRole] = useState<'pembeli' | 'petani'>('pembeli')
+  const navigate = useNavigate()
+
+  const handleRegister = (e: React.FormEvent) => {
+    e.preventDefault()
+    // Simulated registration redirect
+    alert(`Pendaftaran berhasil sebagai ${role}!`)
+    navigate('/login')
+  }
+
+  return (
+    <div className="min-h-screen bg-surface flex flex-row-reverse">
+      {/* Right Panel: Branding & Image (Hidden on Mobile) */}
+      <div className="hidden lg:flex w-1/2 bg-primary relative items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-brand-green/80 to-primary-dark/90 mix-blend-multiply z-10"></div>
+        <img 
+          src="/img/Thriving Farm Fields.jpg" 
+          alt="Petani Indonesia" 
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="relative z-20 text-white p-12 flex flex-col justify-end h-full w-full">
+          <div className="mb-auto self-end">
+            <Link to="/" className="text-3xl font-bold tracking-tight text-white flex items-center gap-2">
+              <span className="material-symbols-outlined text-[32px] text-brand-green-light">energy_savings_leaf</span>
+              PanganLink
+            </Link>
+          </div>
+          <div className="text-right">
+            <h2 className="text-4xl font-bold mb-4 leading-tight">Mulai Perjalanan Anda.</h2>
+            <p className="text-lg text-white/80 max-w-md ml-auto">Bersama membangun ekosistem agrikultur yang lebih kuat, cerdas, dan menguntungkan semua pihak.</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Left Panel: Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-8 overflow-y-auto hide-scrollbar">
+        <div className="w-full max-w-md animate-fadeIn m-auto py-4">
+          
+          <div className="lg:hidden mb-8">
+            <Link to="/" className="text-2xl font-bold tracking-tight text-primary flex items-center gap-2">
+              <span className="material-symbols-outlined text-[28px] text-brand-green">energy_savings_leaf</span>
+              PanganLink
+            </Link>
+          </div>
+
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-on-surface mb-2">Buat Akun Baru</h1>
+            <p className="text-on-surface-variant">Lengkapi data di bawah ini untuk bergabung.</p>
+          </div>
+
+          {/* Role Selector */}
+          <div className="mb-6">
+            <label className="block text-sm font-semibold text-on-surface mb-3">Saya ingin mendaftar sebagai:</label>
+            <div className="grid grid-cols-2 gap-4">
+              <div 
+                onClick={() => setRole('pembeli')}
+                className={`border-2 rounded-xl p-3 cursor-pointer transition-all ${role === 'pembeli' ? 'border-primary bg-primary/5' : 'border-outline-variant hover:border-primary/50'}`}
+              >
+                <div className="flex items-center gap-3 mb-1">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${role === 'pembeli' ? 'bg-primary text-white' : 'bg-surface-variant text-secondary'}`}>
+                    <span className="material-symbols-outlined text-[18px]">shopping_bag</span>
+                  </div>
+                  <span className={`font-bold ${role === 'pembeli' ? 'text-primary' : 'text-on-surface'}`}>Pembeli</span>
+                </div>
+                <p className="text-xs text-on-surface-variant">Beli komoditas dengan harga transparan.</p>
+              </div>
+
+              <div 
+                onClick={() => setRole('petani')}
+                className={`border-2 rounded-xl p-3 cursor-pointer transition-all ${role === 'petani' ? 'border-primary bg-primary/5' : 'border-outline-variant hover:border-primary/50'}`}
+              >
+                <div className="flex items-center gap-3 mb-1">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${role === 'petani' ? 'bg-primary text-white' : 'bg-surface-variant text-secondary'}`}>
+                    <span className="material-symbols-outlined text-[18px]">agriculture</span>
+                  </div>
+                  <span className={`font-bold ${role === 'petani' ? 'text-primary' : 'text-on-surface'}`}>Petani</span>
+                </div>
+                <p className="text-xs text-on-surface-variant">Jual hasil panen dan pantau tren harga AI.</p>
+              </div>
+            </div>
+          </div>
+
+          <form onSubmit={handleRegister} className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-on-surface mb-1.5">Nama Lengkap</label>
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-secondary text-[20px]">person</span>
+                <input 
+                  type="text" 
+                  required
+                  placeholder="Nama Lengkap Anda"
+                  className="w-full pl-11 pr-4 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-xl text-sm focus:border-primary focus:ring-2 focus:ring-primary-muted transition-all"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-on-surface mb-1.5">Email</label>
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-secondary text-[20px]">mail</span>
+                <input 
+                  type="email" 
+                  required
+                  placeholder="email@example.com"
+                  className="w-full pl-11 pr-4 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-xl text-sm focus:border-primary focus:ring-2 focus:ring-primary-muted transition-all"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-on-surface mb-1.5">Kata Sandi</label>
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-secondary text-[20px]">lock</span>
+                <input 
+                  type="password" 
+                  required
+                  placeholder="Minimal 8 karakter"
+                  className="w-full pl-11 pr-4 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-xl text-sm focus:border-primary focus:ring-2 focus:ring-primary-muted transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-start mt-4">
+              <input type="checkbox" id="terms" required className="w-4 h-4 mt-0.5 text-primary bg-surface border-outline-variant rounded focus:ring-primary focus:ring-2 cursor-pointer" />
+              <label htmlFor="terms" className="ml-2 text-sm text-on-surface-variant cursor-pointer">
+                Saya setuju dengan <a href="#" className="font-semibold text-primary hover:text-brand-green">Syarat & Ketentuan</a> serta <a href="#" className="font-semibold text-primary hover:text-brand-green">Kebijakan Privasi</a> yang berlaku.
+              </label>
+            </div>
+
+            <button 
+              type="submit"
+              className="w-full bg-primary-container text-white py-3 rounded-xl font-bold text-sm shadow-sm hover:shadow-soft hover:bg-primary transition-all flex items-center justify-center gap-2 mt-2"
+            >
+              Daftar Akun
+              <span className="material-symbols-outlined text-[18px]">person_add</span>
+            </button>
+          </form>
+
+          <div className="mt-6 text-center text-sm text-on-surface-variant">
+            Sudah punya akun?{' '}
+            <Link to="/login" className="font-bold text-primary hover:text-brand-green transition-colors">Masuk di sini</Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

@@ -8,6 +8,8 @@ import {
 } from '../components/layout'
 
 import { LandingPage }          from '../features/landing/LandingPage'
+import { LoginPage }            from '../features/auth/LoginPage'
+import { RegisterPage }         from '../features/auth/RegisterPage'
 import { AdminDashboardPage }   from '../features/admin/AdminDashboardPage'
 import { ModerasiProdukPage }   from '../features/admin/ModerasiProdukPage'
 import { KelolaKomoditasPage }  from '../features/admin/KelolaKomoditasPage'
@@ -84,8 +86,10 @@ const pembeliLayout = {
 }
 
 export const router = createBrowserRouter([
-  // Landing Page
+  // Public routes
   { path: '/', element: <LandingPage /> },
+  { path: '/login', element: <LoginPage /> },
+  { path: '/register', element: <RegisterPage /> },
 
   // Admin routes
   { path: '/admin', ...adminLayout },
