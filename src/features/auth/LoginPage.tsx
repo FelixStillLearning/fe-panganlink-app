@@ -1,21 +1,35 @@
 import { Link, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { api } from '../../lib/api'
 
 export function LoginPage() {
   const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    setLoading(true)
+    setError('')
     
-    // Simple frontend routing based on email for testing purposes
     const formData = new FormData(e.currentTarget)
     const email = formData.get('email') as string
+    const password = formData.get('password') as string
     
-    if (email.includes('admin')) {
-      navigate('/admin/dashboard')
-    } else if (email.includes('petani')) {
-      navigate('/petani/dashboard')
-    } else {
-      navigate('/pembeli/dashboard')
+    try {
+      const res = await api.post<any>('/v1/auth/login', { email, password })
+      localStorage.setItem('token', res.token)
+      
+      const me = await api.get<any>('/v1/auth/me', { headers: { Authorization: `Bearer ${res.token}` }})
+      const role = me.user.role
+
+      if (role === 'admin') navigate('/admin/dashboard')
+      else if (role === 'petani') navigate('/petani/dashboard')
+      else navigate('/pembeli/dashboard')
+    } catch (err: any) {
+      setError(err.message || 'Login gagal. Silakan periksa kembali email dan password Anda.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -65,6 +79,11 @@ export function LoginPage() {
 
           {/* Form */}
           <form onSubmit={handleLogin} className="space-y-5">
+            {error && (
+              <div className="p-3 text-sm text-danger bg-danger/10 border border-danger/20 rounded-xl">
+                {error}
+              </div>
+            )}
             <div>
               <label className="block text-sm font-semibold text-on-surface mb-1.5">Email</label>
               <div className="relative">
@@ -77,7 +96,6 @@ export function LoginPage() {
                   className="w-full pl-11 pr-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-xl text-sm focus:border-primary focus:ring-2 focus:ring-primary-muted transition-all"
                 />
               </div>
-              <p className="text-xs text-secondary mt-1.5">Tip: Gunakan email admin@... atau petani@... untuk testing role.</p>
             </div>
 
             <div>
@@ -89,6 +107,7 @@ export function LoginPage() {
                 <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-secondary text-[20px]">lock</span>
                 <input 
                   type="password" 
+                  name="password"
                   required
                   placeholder="••••••••"
                   className="w-full pl-11 pr-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-xl text-sm focus:border-primary focus:ring-2 focus:ring-primary-muted transition-all"
@@ -103,10 +122,11 @@ export function LoginPage() {
 
             <button 
               type="submit"
-              className="w-full bg-primary-container text-white py-3 rounded-xl font-bold text-sm shadow-sm hover:shadow-soft hover:bg-primary transition-all flex items-center justify-center gap-2 mt-4"
+              disabled={loading}
+              className="w-full bg-primary-container text-white py-3 rounded-xl font-bold text-sm shadow-sm hover:shadow-soft hover:bg-primary transition-all flex items-center justify-center gap-2 mt-4 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              Masuk Sekarang
-              <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+              {loading ? 'Memproses...' : 'Masuk Sekarang'}
+              {!loading && <span className="material-symbols-outlined text-[18px]">arrow_forward</span>}
             </button>
           </form>
 

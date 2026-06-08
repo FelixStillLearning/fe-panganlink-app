@@ -1,13 +1,32 @@
 import { Link, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { api } from '../../lib/api'
 
 export function RegisterPage() {
   const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    // Simulated registration redirect
-    alert('Pendaftaran berhasil! Silakan masuk ke akun Anda.')
-    navigate('/login')
+    setLoading(true)
+    setError('')
+    
+    const formData = new FormData(e.currentTarget)
+    const name = formData.get('name') as string
+    const email = formData.get('email') as string
+    const password = formData.get('password') as string
+    const role = formData.get('role') as string
+    
+    try {
+      await api.post('/v1/auth/register', { name, email, password, role })
+      alert('Pendaftaran berhasil! Silakan masuk ke akun Anda.')
+      navigate('/login')
+    } catch (err: any) {
+      setError(err.message || 'Pendaftaran gagal. Silakan coba lagi.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -50,17 +69,23 @@ export function RegisterPage() {
           </div>
 
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-on-surface mb-2">Daftar Pembeli</h1>
-            <p className="text-on-surface-variant">Lengkapi data di bawah ini untuk bergabung sebagai pembeli di PanganLink.</p>
+            <h1 className="text-3xl font-bold text-on-surface mb-2">Daftar Akun</h1>
+            <p className="text-on-surface-variant">Lengkapi data di bawah ini untuk bergabung di PanganLink.</p>
           </div>
 
           <form onSubmit={handleRegister} className="space-y-4">
+            {error && (
+              <div className="p-3 text-sm text-danger bg-danger/10 border border-danger/20 rounded-xl">
+                {error}
+              </div>
+            )}
             <div>
               <label className="block text-sm font-semibold text-on-surface mb-1.5">Nama Lengkap</label>
               <div className="relative">
                 <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-secondary text-[20px]">person</span>
                 <input 
                   type="text" 
+                  name="name"
                   required
                   placeholder="Nama Lengkap Anda"
                   className="w-full pl-11 pr-4 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-xl text-sm focus:border-primary focus:ring-2 focus:ring-primary-muted transition-all"
@@ -74,6 +99,7 @@ export function RegisterPage() {
                 <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-secondary text-[20px]">mail</span>
                 <input 
                   type="email" 
+                  name="email"
                   required
                   placeholder="email@example.com"
                   className="w-full pl-11 pr-4 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-xl text-sm focus:border-primary focus:ring-2 focus:ring-primary-muted transition-all"
@@ -87,10 +113,27 @@ export function RegisterPage() {
                 <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-secondary text-[20px]">lock</span>
                 <input 
                   type="password" 
+                  name="password"
                   required
-                  placeholder="Minimal 8 karakter"
+                  placeholder="Minimal 6 karakter"
                   className="w-full pl-11 pr-4 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-xl text-sm focus:border-primary focus:ring-2 focus:ring-primary-muted transition-all"
                 />
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-semibold text-on-surface mb-1.5">Daftar Sebagai</label>
+              <div className="relative">
+                <select
+                  name="role"
+                  required
+                  className="w-full pl-4 pr-10 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-xl text-sm focus:border-primary focus:ring-2 focus:ring-primary-muted transition-all appearance-none cursor-pointer"
+                  defaultValue="pembeli"
+                >
+                  <option value="pembeli">Pembeli</option>
+                  <option value="petani">Petani</option>
+                </select>
+                <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-secondary pointer-events-none text-[20px]">expand_more</span>
               </div>
             </div>
 
@@ -103,10 +146,11 @@ export function RegisterPage() {
 
             <button 
               type="submit"
-              className="w-full bg-primary-container text-white py-3 rounded-xl font-bold text-sm shadow-sm hover:shadow-soft hover:bg-primary transition-all flex items-center justify-center gap-2 mt-2"
+              disabled={loading}
+              className="w-full bg-primary-container text-white py-3 rounded-xl font-bold text-sm shadow-sm hover:shadow-soft hover:bg-primary transition-all flex items-center justify-center gap-2 mt-2 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              Daftar Akun
-              <span className="material-symbols-outlined text-[18px]">person_add</span>
+              {loading ? 'Memproses...' : 'Daftar Akun'}
+              {!loading && <span className="material-symbols-outlined text-[18px]">person_add</span>}
             </button>
           </form>
 
