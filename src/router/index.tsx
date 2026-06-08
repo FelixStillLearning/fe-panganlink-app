@@ -13,6 +13,7 @@ import { ModerasiProdukPage }   from '../features/admin/ModerasiProdukPage'
 import { KelolaKomoditasPage }  from '../features/admin/KelolaKomoditasPage'
 import { HargaPasarPage }       from '../features/admin/HargaPasarPage'
 import { TrenHargaPage }        from '../features/admin/TrenHargaPage'
+import { AdminPengaturanPage }  from '../features/admin/AdminPengaturanPage'
 import { PetaniDashboardPage }  from '../features/petani/PetaniDashboardPage'
 import { PembeliDashboardPage } from '../features/pembeli/PembeliDashboardPage'
 import { PlaceholderPage }      from '../features/shared/PlaceholderPage'
@@ -34,7 +35,7 @@ const adminLayout = {
     { path: 'komoditas',  element: <KelolaKomoditasPage /> },
     { path: 'harga-pasar', element: <HargaPasarPage /> },
     { path: 'tren-harga', element: <TrenHargaPage /> },
-    { path: 'pengaturan', element: <PlaceholderPage title="Pengaturan" /> },
+    { path: 'pengaturan', element: <AdminPengaturanPage /> },
   ],
 }
 
