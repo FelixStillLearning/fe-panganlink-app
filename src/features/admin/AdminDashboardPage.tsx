@@ -1,39 +1,43 @@
+import { useState, useEffect } from 'react'
 import { StatCard, SectionCard, Badge, Button } from '../../components/ui'
-
-const pendingProducts = [
-  { id: 1, name: 'Kopi Arabika Gayo',   farmer: 'Budi Santoso',       icon: 'eco',          submitted: '08 Jun 2026' },
-  { id: 2, name: 'Beras Merah Organik', farmer: 'Koperasi Tani Makmur', icon: 'spa',         submitted: '07 Jun 2026' },
-  { id: 3, name: 'Madu Hutan Liar',     farmer: 'Desa Wangi',          icon: 'local_florist', submitted: '07 Jun 2026' },
-]
-
-const recentUsers = [
-  { name: 'Andi Wijaya',     email: 'andi.w@email.com',     role: 'Petani',  status: 'Aktif',   date: '08 Jun 2026' },
-  { name: 'Siti Aminah',     email: 'siti.a@email.com',     role: 'Pembeli', status: 'Aktif',   date: '07 Jun 2026' },
-  { name: 'Budi Santoso',    email: 'budi.s@email.com',     role: 'Petani',  status: 'Pending', date: '07 Jun 2026' },
-  { name: 'Koperasi Tani',   email: 'kop.tani@email.com',   role: 'Petani',  status: 'Aktif',   date: '06 Jun 2026' },
-  { name: 'Rina Melati',     email: 'rina.m@email.com',     role: 'Pembeli', status: 'Banned',  date: '06 Jun 2026' },
-]
-
-const chartBars = [
-  { day: 'Sen', value: 30, height: '30%' },
-  { day: 'Sel', value: 45, height: '45%' },
-  { day: 'Rab', value: 20, height: '20%' },
-  { day: 'Kam', value: 60, height: '60%' },
-  { day: 'Jum', value: 85, height: '85%' },
-  { day: 'Sab', value: 55, height: '55%' },
-  { day: 'Min', value: 70, height: '70%' },
-]
+import { api } from '../../lib/api'
 
 export function AdminDashboardPage() {
+  const [stats, setStats] = useState<{total_users: number, total_products: number, weekly_sales: any[]}>({ total_users: 0, total_products: 0, weekly_sales: [] })
+  const [users, setUsers] = useState<any[]>([])
+  const [products, setProducts] = useState<any[]>([])
+
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        const statsRes = await api.get<any>('/v1/admin/dashboard')
+        setStats({
+          total_users: statsRes.total_users || 0,
+          total_products: statsRes.total_products || 0,
+          weekly_sales: statsRes.weekly_sales || []
+        })
+
+        const usersRes = await api.get<any>('/v1/admin/users')
+        setUsers(usersRes.data || [])
+
+        const productsRes = await api.get<any>('/v1/admin/products')
+        setProducts(productsRes.data || [])
+      } catch (err) {
+        console.error('Failed to fetch admin dashboard data:', err)
+      }
+    }
+    fetchDashboard()
+  }, [])
+
   return (
     <div className="space-y-6 max-w-7xl">
       {/* Stats Row */}
       <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <StatCard label="Total User"    value={142}  icon="group"           iconColor="text-primary" delay={1} />
-        <StatCard label="Petani Aktif"  value={38}   icon="agriculture"     iconColor="text-success" delay={2} />
-        <StatCard label="Pembeli Aktif" value={104}  icon="storefront"      iconColor="text-tertiary" delay={3} />
-        <StatCard label="Produk Pending" value={7}   icon="pending_actions" iconColor="text-warning"  highlight delay={4} />
-        <StatCard label="Transaksi"     value={289}  icon="receipt_long"    iconColor="text-primary" delay={5} />
+        <StatCard label="Total User"    value={stats.total_users}  icon="group"           iconColor="text-primary" delay={1} />
+        <StatCard label="Petani Aktif"  value={users.filter(u => u.role === 'petani').length}   icon="agriculture"     iconColor="text-success" delay={2} />
+        <StatCard label="Pembeli Aktif" value={users.filter(u => u.role === 'pembeli').length}  icon="storefront"      iconColor="text-tertiary" delay={3} />
+        <StatCard label="Total Produk"  value={stats.total_products}   icon="inventory_2"     iconColor="text-warning"  highlight delay={4} />
+        <StatCard label="Transaksi"     value={0}  icon="receipt_long"    iconColor="text-primary" delay={5} />
         <StatCard label="Komoditas"     value={3}    icon="category"        iconColor="text-success" delay={6} />
       </section>
 
@@ -42,13 +46,13 @@ export function AdminDashboardPage() {
         <div className="lg:col-span-2 space-y-6">
           {/* Pending Moderation */}
           <SectionCard
-            title="Produk Menunggu Moderasi"
-            icon="warning"
+            title="Daftar Produk Terbaru"
+            icon="inventory"
             action={<Button variant="ghost" size="sm">Lihat Semua</Button>}
             delay={2}
           >
             <div className="space-y-3">
-              {pendingProducts.map((p) => (
+              {products.slice(0, 5).map((p: any) => (
                 <div
                   key={p.id}
                   className="flex items-center justify-between py-2.5 px-2 hover:bg-surface-container/60 rounded-lg transition-colors"
@@ -56,13 +60,13 @@ export function AdminDashboardPage() {
                   <div className="flex items-center gap-3">
                     <div className="w-11 h-11 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0">
                       <span className="material-symbols-outlined text-secondary text-[20px]">
-                        {p.icon}
+                        eco
                       </span>
                     </div>
                     <div>
-                      <p className="font-medium text-on-surface text-sm">{p.name}</p>
+                      <p className="font-medium text-on-surface text-sm">{p.komoditas?.nama || p.komoditas_id || 'Produk'}</p>
                       <p className="text-[12px] text-secondary mt-0.5">
-                        {p.farmer} · {p.submitted}
+                        {p.petani?.name || 'Petani'} · Harga: Rp{(p.harga || 0).toLocaleString('id-ID')}
                       </p>
                     </div>
                   </div>
@@ -76,6 +80,9 @@ export function AdminDashboardPage() {
                   </div>
                 </div>
               ))}
+              {products.length === 0 && (
+                <div className="text-center text-secondary py-4 text-sm">Belum ada produk</div>
+              )}
             </div>
           </SectionCard>
 
@@ -98,7 +105,7 @@ export function AdminDashboardPage() {
                 </div>
 
                 {/* Bars */}
-                {chartBars.map((bar) => (
+                {stats.weekly_sales.map((bar) => (
                   <div
                     key={bar.day}
                     className="flex-1 group relative flex items-end justify-center cursor-pointer"
@@ -126,7 +133,7 @@ export function AdminDashboardPage() {
 
               {/* X-axis labels */}
               <div className="flex justify-between mt-2 px-0 text-[11px] text-secondary">
-                {chartBars.map((bar) => (
+                {stats.weekly_sales.map((bar) => (
                   <span key={bar.day} className="flex-1 text-center">{bar.day}</span>
                 ))}
               </div>
@@ -138,15 +145,15 @@ export function AdminDashboardPage() {
         <div className="space-y-6">
           <SectionCard title="Pendaftar Terbaru" icon="group_add" delay={4}>
             <div className="space-y-4">
-              {recentUsers.map((user, i) => (
+              {users.slice(0, 5).map((user, i) => (
                 <div
-                  key={i}
-                  className={`${i < recentUsers.length - 1 ? 'pb-4 border-b border-outline-variant/20' : ''} space-y-1`}
+                  key={user.id}
+                  className={`${i < Math.min(users.length, 5) - 1 ? 'pb-4 border-b border-outline-variant/20' : ''} space-y-1`}
                 >
                   <div className="flex justify-between items-start">
                     <span className="font-medium text-on-surface text-sm">{user.name}</span>
                     <Badge
-                      variant={user.role === 'Petani' ? 'success' : 'info'}
+                      variant={user.role === 'petani' ? 'success' : user.role === 'admin' ? 'default' : 'info'}
                     >
                       {user.role}
                     </Badge>
@@ -160,12 +167,15 @@ export function AdminDashboardPage() {
                         'danger'
                       }
                     >
-                      {user.status}
+                      Aktif
                     </Badge>
                   </div>
-                  <span className="text-[11px] text-outline font-mono">{user.date}</span>
+                  <span className="text-[11px] text-outline font-mono truncate">{user.id}</span>
                 </div>
               ))}
+              {users.length === 0 && (
+                <div className="text-center text-secondary py-4 text-sm">Belum ada user</div>
+              )}
             </div>
           </SectionCard>
         </div>
