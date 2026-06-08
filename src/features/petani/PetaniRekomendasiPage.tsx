@@ -42,7 +42,7 @@ export function PetaniRekomendasiPage() {
               </div>
             </div>
             
-            <Button className="mt-4 w-full" variant="outline">Lihat Detail Analisis</Button>
+            <Button className="mt-4 w-full" variant="outline" icon="analytics">Lihat Detail Analisis</Button>
           </SectionCard>
         ))}
       </div>

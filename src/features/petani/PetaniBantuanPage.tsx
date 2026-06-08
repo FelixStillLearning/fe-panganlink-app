@@ -21,6 +21,10 @@ export function PetaniBantuanPage() {
             </div>
           ))}
         </div>
+        <div className="mt-8 pt-6 border-t border-outline-variant/20 flex flex-col items-center justify-center text-center">
+          <p className="text-sm text-secondary mb-3">Tidak menemukan jawaban yang Anda cari?</p>
+          <Button icon="support_agent" variant="outline">Hubungi Customer Service</Button>
+        </div>
       </SectionCard>
     </div>
   )
