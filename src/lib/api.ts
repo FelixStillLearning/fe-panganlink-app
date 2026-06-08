@@ -2,19 +2,28 @@ const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080/api'
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const token = localStorage.getItem('token')
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
+  const headers: Record<string, string> = {}
+  
+  if (!(options?.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json'
   }
+  
   if (token) {
     headers['Authorization'] = `Bearer ${token}`
   }
 
+  // Remove Content-Type if we specifically passed null or if it was overridden poorly
+  const finalHeaders = {
+    ...headers,
+    ...options?.headers,
+  }
+  if (options?.body instanceof FormData && finalHeaders['Content-Type']) {
+    delete (finalHeaders as any)['Content-Type']
+  }
+
   const res = await fetch(`${BASE_URL}${path}`, {
     ...options,
-    headers: {
-      ...headers,
-      ...options?.headers,
-    },
+    headers: finalHeaders,
   })
 
   if (!res.ok) {
@@ -28,8 +37,8 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 export const api = {
   get: <T>(path: string, options?: RequestInit) => request<T>(path, options),
   post: <T>(path: string, body: unknown, options?: RequestInit) =>
-    request<T>(path, { method: 'POST', body: JSON.stringify(body), ...options }),
+    request<T>(path, { method: 'POST', body: body instanceof FormData ? body : JSON.stringify(body), ...options }),
   put: <T>(path: string, body: unknown, options?: RequestInit) =>
-    request<T>(path, { method: 'PUT', body: JSON.stringify(body), ...options }),
+    request<T>(path, { method: 'PUT', body: body instanceof FormData ? body : JSON.stringify(body), ...options }),
   delete: <T>(path: string, options?: RequestInit) => request<T>(path, { method: 'DELETE', ...options }),
 }
