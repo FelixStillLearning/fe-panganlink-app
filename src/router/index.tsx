@@ -23,7 +23,6 @@ import { PembeliPesananPage }   from '../features/pembeli/PembeliPesananPage'
 import { PembeliRiwayatPage }   from '../features/pembeli/PembeliRiwayatPage'
 import { PembeliProfilPage }    from '../features/pembeli/PembeliProfilPage'
 import { PembeliBantuanPage }   from '../features/pembeli/PembeliBantuanPage'
-import { PlaceholderPage }      from '../features/shared/PlaceholderPage'
 
 // ===== ADMIN Layout =====
 const adminLayout = {

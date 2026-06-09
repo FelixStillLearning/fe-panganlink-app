@@ -90,7 +90,7 @@ export function PetaniPesananPage() {
                   <td className="py-3 px-2 font-mono text-primary text-[12px] font-semibold">{o.id}</td>
                   <td className="py-3 px-2 font-medium text-on-surface">{o.buyer?.name || 'Guest'}</td>
                   <td className="py-3 px-2 text-secondary">
-                    {o.items?.map((item: any) => `${item.product?.komoditas?.nama || 'Produk'} (${item.jumlah}kg)`).join(', ')}
+                    {o.items?.map((item: any) => `${item.product?.nama || item.product?.komoditas?.nama || 'Produk'} (${item.jumlah}kg)`).join(', ')}
                   </td>
                   <td className="py-3 px-2 font-mono text-primary text-[12px] font-semibold">{formatRupiah(o.total_harga)}</td>
                   <td className="py-3 px-2">

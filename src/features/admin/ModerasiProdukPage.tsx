@@ -158,14 +158,14 @@ export function ModerasiProdukPage() {
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-md overflow-hidden bg-surface-variant flex-shrink-0 border border-outline-variant/30 flex items-center justify-center text-secondary/50">
                         {product.foto_url ? (
-                          <img alt={product.komoditas?.nama || 'Produk'} className="w-full h-full object-cover" src={product.foto_url} />
+                          <img alt={product.nama || product.komoditas?.nama || 'Produk'} className="w-full h-full object-cover" src={product.foto_url} />
                         ) : (
                           <span className="material-symbols-outlined">image</span>
                         )}
                       </div>
                       <div>
                         <button className="text-sm text-on-surface font-semibold hover:text-primary transition-colors text-left" onClick={() => openModal(product)}>
-                          {product.komoditas?.nama || product.komoditas_id || 'Produk'}
+                          {product.nama || product.komoditas?.nama || product.komoditas_id || 'Produk'}
                         </button>
                         <div className="text-xs font-mono text-on-surface-variant mt-1">{product.komoditas?.kategori || 'Kategori'}</div>
                       </div>
@@ -242,7 +242,7 @@ export function ModerasiProdukPage() {
               <div className="w-full md:w-1/3 flex flex-col gap-4">
                 <div className="aspect-square rounded-lg overflow-hidden bg-surface-variant border border-outline-variant/30 flex items-center justify-center text-secondary/50">
                   {selectedProduct?.foto_url ? (
-                    <img alt={selectedProduct?.komoditas?.nama || 'Produk'} className="w-full h-full object-cover" src={selectedProduct.foto_url} />
+                    <img alt={selectedProduct?.nama || selectedProduct?.komoditas?.nama || 'Produk'} className="w-full h-full object-cover" src={selectedProduct.foto_url} />
                   ) : (
                     <span className="material-symbols-outlined text-4xl">image</span>
                   )}
@@ -266,7 +266,7 @@ export function ModerasiProdukPage() {
               <div className="w-full md:w-2/3 flex flex-col gap-6">
                 <div>
                   <div className="text-xs font-mono text-primary mb-1">Kategori: {selectedProduct?.komoditas?.kategori || 'Kategori'}</div>
-                  <h2 className="text-2xl font-bold text-on-surface leading-tight">{selectedProduct?.komoditas?.nama || selectedProduct?.komoditas_id || 'Produk'}</h2>
+                  <h2 className="text-2xl font-bold text-on-surface leading-tight">{selectedProduct?.nama || selectedProduct?.komoditas?.nama || selectedProduct?.komoditas_id || 'Produk'}</h2>
                   <div className="flex gap-6 mt-4">
                     <div>
                       <div className="text-sm text-on-surface-variant mb-1">Harga Diajukan</div>
@@ -284,12 +284,12 @@ export function ModerasiProdukPage() {
                 <div>
                   <h4 className="text-lg font-semibold text-on-surface mb-2">Deskripsi Produk</h4>
                   <p className="text-base text-on-surface-variant leading-relaxed">
-                    Produk komoditas unggul yang ditanam oleh petani lokal. Kualitas terjamin dan dapat dicek langsung ketersediaannya.
+                    {selectedProduct?.deskripsi || 'Tidak ada deskripsi yang disediakan oleh petani.'}
                   </p>
                 </div>
                 
                 <div className="h-px w-full bg-outline-variant/30"></div>
-                
+
                 <div>
                   <h4 className="text-lg font-semibold text-on-surface mb-2">Informasi Petani</h4>
                   <div className="bg-surface-container-low p-4 rounded-lg flex items-center gap-4 border border-outline-variant/20">

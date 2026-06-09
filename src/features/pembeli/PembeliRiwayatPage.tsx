@@ -63,7 +63,7 @@ export function PembeliRiwayatPage() {
                   <td className="py-3 px-2 font-mono text-primary text-[12px] font-semibold">{order.id}</td>
                   <td className="py-3 px-2">
                     <p className="font-medium text-on-surface line-clamp-1 max-w-[200px]">
-                      {order.items?.map((i: any) => i.product?.komoditas?.nama || 'Produk').join(', ')}
+                      {order.items?.map((i: any) => i.product?.nama || i.product?.komoditas?.nama || 'Produk').join(', ')}
                     </p>
                     <p className="text-[11px] text-secondary">
                       {order.items?.[0]?.product?.petani?.farm_name || order.items?.[0]?.product?.petani?.name || 'Petani'}

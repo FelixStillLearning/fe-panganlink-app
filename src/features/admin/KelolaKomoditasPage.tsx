@@ -41,16 +41,15 @@ export function KelolaKomoditasPage() {
     e.preventDefault()
     const form = e.target as HTMLFormElement
     const nama = (form.elements.namedItem('nama') as HTMLInputElement).value
-    const kategori = (form.elements.namedItem('kategori') as HTMLSelectElement).value
     const satuan = (form.elements.namedItem('satuan') as HTMLSelectElement).value
 
     try {
       if (modalType === 'add') {
         const id = 'KMD-' + Math.floor(Math.random() * 10000).toString().padStart(4, '0') // Simple ID generator
-        const payload = { id, nama, kategori, satuan }
+        const payload = { id, nama, kategori: '-', satuan }
         await api.post('/v1/admin/commodities', payload)
       } else if (modalType === 'edit' && selectedItem) {
-        const payload = { id: selectedItem.id, nama, kategori, satuan }
+        const payload = { id: selectedItem.id, nama, kategori: '-', satuan }
         await api.put(`/v1/admin/commodities/${selectedItem.id}`, payload)
       }
       await fetchKomoditas()
@@ -106,7 +105,6 @@ export function KelolaKomoditasPage() {
                 <th className="px-6 py-4 font-semibold w-24">ID</th>
                 <th className="px-6 py-4 font-semibold">Nama Komoditas</th>
                 <th className="px-6 py-4 font-semibold w-32">Satuan</th>
-                <th className="px-6 py-4 font-semibold w-48">Kategori</th>
                 <th className="px-6 py-4 font-semibold text-right w-32">Aksi</th>
               </tr>
             </thead>
@@ -121,11 +119,6 @@ export function KelolaKomoditasPage() {
                     {item.nama}
                   </td>
                   <td className="px-6 py-4 text-secondary">{item.satuan}</td>
-                  <td className="px-6 py-4">
-                    <span className="inline-flex items-center px-2 py-1 rounded-md bg-warning/10 text-warning text-xs font-mono uppercase">
-                      {item.kategori}
-                    </span>
-                  </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2 transition-opacity">
                       <button 
@@ -183,32 +176,24 @@ export function KelolaKomoditasPage() {
             <form onSubmit={handleSave} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
               <div>
                 <label className="block text-sm text-on-surface-variant mb-1">Nama Komoditas</label>
-                <input 
+                <select 
                   name="nama"
                   required
                   className="w-full px-4 py-2 bg-surface border border-outline-variant rounded-lg text-sm focus:border-primary focus:ring-2 focus:ring-primary-muted transition-all" 
-                  placeholder="Cth: Beras Rojo Lele" 
-                  type="text"
                   defaultValue={modalType === 'edit' ? selectedItem?.nama : ''}
-                />
+                >
+                  <option value="" disabled>Pilih Nama Komoditas</option>
+                  <option value="Beras">Beras</option>
+                  <option value="Cabai Merah">Cabai Merah</option>
+                  <option value="Bawang Merah">Bawang Merah</option>
+                </select>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm text-on-surface-variant mb-1">Kategori</label>
-                  <select name="kategori" required defaultValue={modalType === 'edit' ? selectedItem?.kategori : ''} className="w-full px-4 py-2 bg-surface border border-outline-variant rounded-lg text-sm focus:border-primary focus:ring-2 focus:ring-primary-muted transition-all">
-                    <option value="">Pilih Kategori</option>
-                    <option value="Beras">Beras</option>
-                    <option value="Cabai Merah">Cabai Merah</option>
-                    <option value="Tomat">Tomat</option>
-                  </select>
-                </div>
-                <div>
+                <div className="w-full">
                   <label className="block text-sm text-on-surface-variant mb-1">Satuan Dasar</label>
                   <select name="satuan" defaultValue="kg" disabled className="w-full px-4 py-2 bg-surface-variant border border-outline-variant rounded-lg text-sm text-secondary cursor-not-allowed">
                     <option value="kg">Kilogram (kg)</option>
                   </select>
                 </div>
-              </div>
               <div>
                 <label className="block text-sm text-on-surface-variant mb-1">Deskripsi Opsional</label>
                 <textarea 

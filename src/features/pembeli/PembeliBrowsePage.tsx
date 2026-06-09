@@ -29,7 +29,7 @@ export function PembeliBrowsePage() {
     const category = p.komoditas?.kategori || ''
     const matchCat = activeCategory === 'Semua' || category.toLowerCase() === activeCategory.toLowerCase()
     
-    const name = p.komoditas?.nama || ''
+    const name = p.nama || p.komoditas?.nama || ''
     const seller = p.petani?.farm_name || p.petani?.name || ''
     const matchSearch = name.toLowerCase().includes(searchQuery.toLowerCase()) || seller.toLowerCase().includes(searchQuery.toLowerCase())
     
@@ -86,7 +86,7 @@ export function PembeliBrowsePage() {
             <div key={product.id} className="bg-surface-container-lowest border border-outline-variant/20 rounded-2xl overflow-hidden hover-lift interactive-card group flex flex-col">
               <div className="h-40 bg-surface-container flex items-center justify-center overflow-hidden">
                 {product.foto_url ? (
-                  <img src={product.foto_url} alt={product.komoditas?.nama} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                  <img src={product.foto_url} alt={product.nama || product.komoditas?.nama} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
                 ) : (
                   <div className="text-6xl group-hover:scale-110 transition-transform duration-300">
                     {product.komoditas?.kategori === 'Sayuran' ? '🥬' :
@@ -98,7 +98,7 @@ export function PembeliBrowsePage() {
               </div>
               <div className="p-4 flex-1 flex flex-col">
                 <div className="flex items-start justify-between gap-2 mb-1">
-                  <h3 className="font-semibold text-on-surface line-clamp-2 leading-tight">{product.komoditas?.nama}</h3>
+                  <h3 className="font-semibold text-on-surface line-clamp-2 leading-tight">{product.nama || product.komoditas?.nama}</h3>
                 </div>
                 <p className="text-xs text-secondary flex items-center gap-1 mb-3">
                   <span className="material-symbols-outlined text-[14px]">storefront</span>

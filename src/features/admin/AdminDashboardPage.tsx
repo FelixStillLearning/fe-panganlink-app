@@ -29,6 +29,16 @@ export function AdminDashboardPage() {
     fetchDashboard()
   }, [])
 
+  const handleAction = async (id: string, action: 'approved' | 'rejected') => {
+    try {
+      await api.put(`/v1/admin/products/${id}/${action === 'approved' ? 'approve' : 'reject'}`, {})
+      setProducts(prev => prev.map(p => p.id === id ? { ...p, status: action } : p))
+    } catch (err) {
+      console.error(`Failed to ${action} product:`, err)
+      alert(`Gagal mengubah status produk.`)
+    }
+  }
+
   return (
     <div className="space-y-6 max-w-7xl">
       {/* Stats Row */}
@@ -64,19 +74,27 @@ export function AdminDashboardPage() {
                       </span>
                     </div>
                     <div>
-                      <p className="font-medium text-on-surface text-sm">{p.komoditas?.nama || p.komoditas_id || 'Produk'}</p>
+                      <p className="font-medium text-on-surface text-sm">{p.nama || p.komoditas?.nama || p.komoditas_id || 'Produk'}</p>
                       <p className="text-[12px] text-secondary mt-0.5">
                         {p.petani?.name || 'Petani'} · Harga: Rp{(p.harga || 0).toLocaleString('id-ID')}
                       </p>
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <button className="p-1.5 rounded-lg bg-success/10 text-success hover:bg-success hover:text-white transition-all duration-200 group active:scale-95">
-                      <span className="material-symbols-outlined text-[18px]">check</span>
-                    </button>
-                    <button className="p-1.5 rounded-lg bg-danger/10 text-danger hover:bg-danger hover:text-white transition-all duration-200 group active:scale-95">
-                      <span className="material-symbols-outlined text-[18px]">close</span>
-                    </button>
+                    {p.status === 'pending' ? (
+                      <>
+                        <button onClick={() => handleAction(p.id, 'approved')} className="p-1.5 rounded-lg bg-success/10 text-success hover:bg-success hover:text-white transition-all duration-200 group active:scale-95" title="Setujui">
+                          <span className="material-symbols-outlined text-[18px]">check</span>
+                        </button>
+                        <button onClick={() => handleAction(p.id, 'rejected')} className="p-1.5 rounded-lg bg-danger/10 text-danger hover:bg-danger hover:text-white transition-all duration-200 group active:scale-95" title="Tolak">
+                          <span className="material-symbols-outlined text-[18px]">close</span>
+                        </button>
+                      </>
+                    ) : (
+                      <Badge variant={p.status === 'approved' ? 'success' : 'danger'}>
+                        {p.status === 'approved' ? 'Disetujui' : 'Ditolak'}
+                      </Badge>
+                    )}
                   </div>
                 </div>
               ))}

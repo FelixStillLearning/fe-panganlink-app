@@ -70,11 +70,11 @@ export function PetaniRiwayatPage() {
                   <td className="py-3 px-2 font-mono text-primary text-[12px] font-semibold">{h.id}</td>
                   <td className="py-3 px-2 text-on-surface">{h.buyer?.name || 'Guest'}</td>
                   <td className="py-3 px-2 text-on-surface">
-                    {h.items?.map((item: any) => `${item.product?.komoditas?.nama || 'Produk'} (${item.jumlah}kg)`).join(', ')}
+                    {h.items?.map((item: any) => `${item.product?.nama || item.product?.komoditas?.nama || 'Produk'} (${item.jumlah}kg)`).join(', ')}
                   </td>
                   <td className="py-3 px-2 font-mono text-success text-[12px] font-semibold">{formatRupiah(h.total_harga)}</td>
                   <td className="py-3 px-2">
-                    <Badge variant={h.status === 'selesai' || h.status === 'success' ? 'success' : 'error'}>{h.status}</Badge>
+                    <Badge variant={h.status === 'selesai' || h.status === 'success' ? 'success' : 'danger'}>{h.status}</Badge>
                   </td>
                 </tr>
               ))}

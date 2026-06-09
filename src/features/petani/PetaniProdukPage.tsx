@@ -14,6 +14,8 @@ export function PetaniProdukPage() {
   const [formData, setFormData] = useState({
     id: '',
     komoditas_id: '',
+    nama: '',
+    deskripsi: '',
     stok: 0,
     harga: 0,
     foto_url: '',
@@ -45,6 +47,8 @@ export function PetaniProdukPage() {
       setFormData({
         id: product.id,
         komoditas_id: product.komoditas_id,
+        nama: product.nama || '',
+        deskripsi: product.deskripsi || '',
         stok: product.stok,
         harga: product.harga,
         foto_url: product.foto_url,
@@ -53,6 +57,8 @@ export function PetaniProdukPage() {
       setFormData({
         id: '',
         komoditas_id: commodities.length > 0 ? commodities[0].id : '',
+        nama: '',
+        deskripsi: '',
         stok: 0,
         harga: 0,
         foto_url: '',
@@ -88,6 +94,8 @@ export function PetaniProdukPage() {
     try {
       const payload = {
         komoditas_id: formData.komoditas_id,
+        nama: formData.nama,
+        deskripsi: formData.deskripsi,
         stok: Number(formData.stok),
         harga: Number(formData.harga),
         foto_url: formData.foto_url,
@@ -149,13 +157,13 @@ export function PetaniProdukPage() {
                 <tr key={p.id} className="border-b border-outline-variant/10 hover:bg-surface-container/50 transition-colors">
                   <td className="py-3 px-2 font-medium text-on-surface flex items-center gap-3">
                     {p.foto_url ? (
-                      <img src={p.foto_url} alt={p.komoditas?.nama} className="w-10 h-10 rounded object-cover" />
+                      <img src={p.foto_url} alt={p.nama || p.komoditas?.nama} className="w-10 h-10 rounded object-cover" />
                     ) : (
                       <div className="w-10 h-10 rounded bg-surface-container-high flex items-center justify-center">
                          <span className="material-symbols-outlined text-secondary text-[16px]">image</span>
                       </div>
                     )}
-                    {p.komoditas?.nama || p.komoditas_id}
+                    {p.nama || p.komoditas?.nama || p.komoditas_id}
                   </td>
                   <td className="py-3 px-2 text-secondary">{p.komoditas?.kategori || '-'}</td>
                   <td className="py-3 px-2 font-mono text-[12px] text-secondary">{p.stok} kg</td>
@@ -168,7 +176,7 @@ export function PetaniProdukPage() {
                   <td className="py-3 px-2 text-right">
                     <div className="flex justify-end gap-1">
                       <Button variant="ghost" size="sm" icon="edit" onClick={() => handleOpenModal('edit', p)}>Edit</Button>
-                      <Button variant="ghost" size="sm" icon="delete" className="!text-danger" onClick={() => handleDelete(p.id)} />
+                      <Button variant="ghost" size="sm" icon="delete" className="!text-danger" onClick={() => handleDelete(p.id)}>Hapus</Button>
                     </div>
                   </td>
                 </tr>
@@ -203,7 +211,18 @@ export function PetaniProdukPage() {
             </label>
           </div>
           <div>
-            <label className="block text-[11px] font-bold text-secondary uppercase tracking-wider mb-1.5">Pilih Komoditas</label>
+            <label className="block text-[11px] font-bold text-secondary uppercase tracking-wider mb-1.5">Nama Produk / Merk</label>
+            <input 
+              type="text" 
+              value={formData.nama}
+              onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
+              className="w-full bg-transparent text-sm text-on-surface p-2.5 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none transition-all" 
+              placeholder="Cth: Beras Premium Maknyus 5kg" 
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-[11px] font-bold text-secondary uppercase tracking-wider mb-1.5">Kategori Komoditas</label>
             <select 
               value={formData.komoditas_id}
               onChange={(e) => setFormData({ ...formData, komoditas_id: e.target.value })}
@@ -214,6 +233,16 @@ export function PetaniProdukPage() {
                 <option key={c.id} value={c.id}>{c.nama} ({c.kategori})</option>
               ))}
             </select>
+          </div>
+          <div>
+            <label className="block text-[11px] font-bold text-secondary uppercase tracking-wider mb-1.5">Deskripsi Produk</label>
+            <textarea 
+              value={formData.deskripsi}
+              onChange={(e) => setFormData({ ...formData, deskripsi: e.target.value })}
+              className="w-full bg-transparent text-sm text-on-surface p-2.5 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none transition-all resize-none" 
+              placeholder="Ceritakan tentang produk Anda..." 
+              rows={3}
+            ></textarea>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>

@@ -23,7 +23,9 @@ export function RegisterPage() {
       alert('Pendaftaran berhasil! Silakan masuk ke akun Anda.')
       navigate('/login')
     } catch (err: any) {
-      setError(err.message || 'Pendaftaran gagal. Silakan coba lagi.')
+      const msg = err.message || 'Pendaftaran gagal. Silakan coba lagi.'
+      setError(msg)
+      alert(`Pendaftaran Gagal:\n${msg}`)
     } finally {
       setLoading(false)
     }

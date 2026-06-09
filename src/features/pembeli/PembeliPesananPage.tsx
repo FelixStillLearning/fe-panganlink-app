@@ -104,7 +104,7 @@ export function PembeliPesananPage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <h4 className="font-semibold text-on-surface">
-                  {order.items?.map((i: any) => i.product?.komoditas?.nama || 'Produk').join(', ')}
+                  {order.items?.map((i: any) => i.product?.nama || i.product?.komoditas?.nama || 'Produk').join(', ')}
                 </h4>
                 <p className="text-sm text-secondary mt-1">
                   {order.items?.length} jenis barang • {order.items?.[0]?.product?.petani?.farm_name || order.items?.[0]?.product?.petani?.name || 'Petani'}

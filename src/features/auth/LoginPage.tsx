@@ -29,7 +29,7 @@ export function LoginPage() {
     } catch (err: any) {
       const msg = err.message || 'Login gagal. Silakan periksa kembali email dan password Anda.'
       setError(msg)
-      alert(msg)
+      alert(`Login Gagal:\n${msg}`)
     } finally {
       setLoading(false)
     }

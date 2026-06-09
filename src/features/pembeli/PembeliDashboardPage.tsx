@@ -82,7 +82,7 @@ export function PembeliDashboardPage() {
                     >
                       <td className="py-3 px-2 font-mono text-primary text-[12px] font-semibold">{order.id}</td>
                       <td className="py-3 px-2 font-medium text-on-surface">
-                        {order.items?.map((i: any) => i.product?.komoditas?.nama || 'Produk').join(', ')}
+                        {order.items?.map((i: any) => i.product?.nama || i.product?.komoditas?.nama || 'Produk').join(', ')}
                       </td>
                       <td className="py-3 px-2 text-[12px] text-secondary">
                         {order.items?.[0]?.product?.petani?.name || 'Petani'}

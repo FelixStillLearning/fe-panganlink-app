@@ -13,12 +13,12 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   }
 
   // Remove Content-Type if we specifically passed null or if it was overridden poorly
-  const finalHeaders = {
+  const finalHeaders: Record<string, any> = {
     ...headers,
     ...options?.headers,
   }
   if (options?.body instanceof FormData && finalHeaders['Content-Type']) {
-    delete (finalHeaders as any)['Content-Type']
+    delete finalHeaders['Content-Type']
   }
 
   const res = await fetch(`${BASE_URL}${path}`, {
@@ -27,8 +27,13 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   })
 
   if (!res.ok) {
-    const error = await res.json().catch(() => ({ message: 'Request failed' }))
-    throw new Error(error.message ?? 'Request failed')
+    const errorData = await res.json().catch(() => ({ error: `Terjadi kesalahan server (Kode: ${res.status})` }))
+    const errorMessage = errorData.error || errorData.message || `Terjadi kesalahan server (Kode: ${res.status})`
+    
+    // Global Error Pop Up
+    alert(`Error: ${errorMessage}`)
+    
+    throw new Error(errorMessage)
   }
 
   return res.json()
