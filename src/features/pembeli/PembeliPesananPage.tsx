@@ -41,6 +41,7 @@ export function PembeliPesananPage() {
     const statusMap: Record<string, string> = {
       'pending': 'Menunggu Pembayaran',
       'menunggu': 'Menunggu Pembayaran',
+      'paid': 'Diproses',
       'diproses': 'Diproses',
       'dikirim': 'Dikirim',
       'selesai': 'Selesai',

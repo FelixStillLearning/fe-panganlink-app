@@ -53,7 +53,7 @@ export function StatCard({
 
 // ===== Section Card =====
 type SectionCardProps = {
-  title: string
+  title?: string
   subtitle?: string
   icon?: string
   action?: ReactNode
@@ -66,25 +66,29 @@ export function SectionCard({
   title, subtitle, icon, action, children, className = '', delay = 0,
 }: SectionCardProps) {
   const stagger = delay ? `stagger-${delay}` : ''
+  const hasHeader = title || subtitle || icon || action;
+  
   return (
     <section
       className={`bg-surface-container-lowest rounded-xl shadow-card border border-outline-variant/20 opacity-0 animate-fadeUp ${stagger} ${className}`}
     >
-      <div className="flex items-start justify-between p-5 pb-4 border-b border-outline-variant/20">
-        <div className="flex items-center gap-2">
-          {icon && (
-            <span className="material-symbols-outlined text-primary text-[20px]">
-              {icon}
-            </span>
-          )}
-          <div>
-            <h3 className="text-[15px] font-semibold text-on-surface">{title}</h3>
-            {subtitle && <p className="text-[12px] text-secondary mt-0.5">{subtitle}</p>}
+      {hasHeader && (
+        <div className="flex items-start justify-between p-5 pb-4 border-b border-outline-variant/20">
+          <div className="flex items-center gap-2">
+            {icon && (
+              <span className="material-symbols-outlined text-primary text-[20px]">
+                {icon}
+              </span>
+            )}
+            <div>
+              {title && <h3 className="text-[15px] font-semibold text-on-surface">{title}</h3>}
+              {subtitle && <p className="text-[12px] text-secondary mt-0.5">{subtitle}</p>}
+            </div>
           </div>
+          {action && <div className="flex-shrink-0">{action}</div>}
         </div>
-        {action && <div className="flex-shrink-0">{action}</div>}
-      </div>
-      <div className="p-5">{children}</div>
+      )}
+      <div className={hasHeader ? "p-5" : ""}>{children}</div>
     </section>
   )
 }

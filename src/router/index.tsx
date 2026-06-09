@@ -23,6 +23,8 @@ import { PembeliPesananPage }   from '../features/pembeli/PembeliPesananPage'
 import { PembeliRiwayatPage }   from '../features/pembeli/PembeliRiwayatPage'
 import { PembeliProfilPage }    from '../features/pembeli/PembeliProfilPage'
 import { PembeliBantuanPage }   from '../features/pembeli/PembeliBantuanPage'
+import { PembeliKeranjangPage } from '../features/pembeli/PembeliKeranjangPage'
+import { CartProvider }         from '../store/CartContext'
 
 // ===== ADMIN Layout =====
 const adminLayout = {
@@ -79,12 +81,14 @@ const petaniLayout = {
 // ===== PEMBELI Layout =====
 const pembeliLayout = {
   element: (
-    <DashboardLayout
-      navItems={pembeliNavItems}
-      footerNavItems={pembeliFooterNavItems}
-      role="Pembeli"
-      userName="Rini Melati"
-    />
+    <CartProvider>
+      <DashboardLayout
+        navItems={pembeliNavItems}
+        footerNavItems={pembeliFooterNavItems}
+        role="Pembeli"
+        userName="Rini Melati"
+      />
+    </CartProvider>
   ),
   children: [
     { index: true, element: <Navigate to="/pembeli/dashboard" replace /> },
@@ -92,6 +96,7 @@ const pembeliLayout = {
     { path: 'browse',    element: <PembeliBrowsePage /> },
     { path: 'pesanan',   element: <PembeliPesananPage /> },
     { path: 'riwayat',   element: <PembeliRiwayatPage /> },
+    { path: 'keranjang', element: <PembeliKeranjangPage /> },
     { path: 'profil',    element: <PembeliProfilPage /> },
     { path: 'bantuan',   element: <PembeliBantuanPage /> },
   ],

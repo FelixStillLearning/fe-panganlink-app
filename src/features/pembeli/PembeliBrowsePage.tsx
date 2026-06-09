@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { SectionCard, Button, EmptyState } from '../../components/ui'
 import { pembeliApi } from '../../lib/services'
+import { useCart } from '../../store/CartContext'
 
 const categories = ['Semua', 'Sayuran', 'Buah', 'Beras & Biji', 'Rempah', 'Madu & Olahan', 'Kopi & Teh']
 
@@ -9,6 +10,7 @@ export function PembeliBrowsePage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [products, setProducts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const { addToCart } = useCart()
 
   useEffect(() => {
     fetchProducts()
@@ -110,7 +112,22 @@ export function PembeliBrowsePage() {
                     <span className="text-lg font-bold text-primary">Rp {product.harga?.toLocaleString('id-ID')}</span>
                     <span className="text-xs text-secondary">/ {product.komoditas?.satuan || 'kg'}</span>
                   </div>
-                  <Button variant="primary" className="w-full" icon="add_shopping_cart" disabled={product.stok <= 0}>
+                  <Button 
+                    variant="primary" 
+                    className="w-full" 
+                    icon="add_shopping_cart" 
+                    disabled={product.stok <= 0}
+                    onClick={() => addToCart({
+                      id: Math.random().toString(36).substring(7),
+                      product_id: product.id,
+                      nama: product.nama || product.komoditas?.nama || 'Produk',
+                      petani_name: product.petani?.farm_name || product.petani?.name || 'Petani',
+                      harga: product.harga,
+                      jumlah: 1,
+                      foto_url: product.foto_url,
+                      stok_maks: product.stok
+                    })}
+                  >
                     {product.stok > 0 ? 'Keranjang' : 'Stok Habis'}
                   </Button>
                 </div>

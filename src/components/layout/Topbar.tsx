@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, Link } from 'react-router-dom'
+import { useContext } from 'react'
+import { CartContext } from '../../store/CartContext' // We'll need to export the context
+
 
 type TopbarProps = {
   onMenuClick: () => void
@@ -28,6 +31,9 @@ const routeTitles: Record<string, { title: string; subtitle: string }> = {
 export function Topbar({ onMenuClick, title, subtitle, actions }: TopbarProps) {
   const location = useLocation()
   const [scrolled, setScrolled] = useState(false)
+  const cartContext = useContext(CartContext)
+  const totalItems = cartContext?.totalItems || 0
+  const isPembeli = location.pathname.includes('/pembeli')
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10)
@@ -87,6 +93,20 @@ export function Topbar({ onMenuClick, title, subtitle, actions }: TopbarProps) {
 
         {/* Custom actions slot */}
         {actions}
+
+        {/* Cart - Only for Pembeli */}
+        {isPembeli && (
+          <Link to="/pembeli/keranjang" className="relative p-2 rounded-xl hover:bg-surface-container transition-colors duration-200 group">
+            <span className="material-symbols-outlined text-secondary group-hover:text-primary transition-colors text-[20px]">
+              shopping_cart
+            </span>
+            {totalItems > 0 && (
+              <span className="absolute top-1 right-0 w-4 h-4 bg-primary text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-surface shadow-sm">
+                {totalItems}
+              </span>
+            )}
+          </Link>
+        )}
 
         {/* Notifications */}
         <button className="relative p-2 rounded-xl hover:bg-surface-container transition-colors duration-200 group">
