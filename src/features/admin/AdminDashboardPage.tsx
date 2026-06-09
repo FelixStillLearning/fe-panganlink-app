@@ -3,7 +3,7 @@ import { StatCard, SectionCard, Badge, Button } from '../../components/ui'
 import { api } from '../../lib/api'
 
 export function AdminDashboardPage() {
-  const [stats, setStats] = useState<{total_users: number, total_products: number, weekly_sales: any[]}>({ total_users: 0, total_products: 0, weekly_sales: [] })
+  const [stats, setStats] = useState<{total_users: number, total_products: number, total_orders: number, weekly_sales: any[]}>({ total_users: 0, total_products: 0, total_orders: 0, weekly_sales: [] })
   const [users, setUsers] = useState<any[]>([])
   const [products, setProducts] = useState<any[]>([])
 
@@ -14,6 +14,7 @@ export function AdminDashboardPage() {
         setStats({
           total_users: statsRes.total_users || 0,
           total_products: statsRes.total_products || 0,
+          total_orders: statsRes.total_orders || 0,
           weekly_sales: statsRes.weekly_sales || []
         })
 
@@ -47,7 +48,7 @@ export function AdminDashboardPage() {
         <StatCard label="Petani Aktif"  value={users.filter(u => u.role === 'petani').length}   icon="agriculture"     iconColor="text-success" delay={2} />
         <StatCard label="Pembeli Aktif" value={users.filter(u => u.role === 'pembeli').length}  icon="storefront"      iconColor="text-tertiary" delay={3} />
         <StatCard label="Total Produk"  value={stats.total_products}   icon="inventory_2"     iconColor="text-warning"  highlight delay={4} />
-        <StatCard label="Transaksi"     value={0}  icon="receipt_long"    iconColor="text-primary" delay={5} />
+        <StatCard label="Transaksi"     value={stats.total_orders}  icon="receipt_long"    iconColor="text-primary" delay={5} />
         <StatCard label="Komoditas"     value={3}    icon="category"        iconColor="text-success" delay={6} />
       </section>
 

@@ -78,8 +78,11 @@ export function PembeliRiwayatPage() {
                   <td className="py-3 px-2 text-[12px] text-secondary">
                     {new Date(order.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
                   </td>
-                  <td className="py-3 px-2 flex gap-1">
-                    <Button variant="ghost" size="sm" icon="receipt">Nota</Button>
+                  <td className="py-3 px-2">
+                    <a href="#" onClick={(e) => { e.preventDefault(); window.print(); }} className="inline-flex items-center gap-1 px-3 py-1.5 bg-primary/10 text-primary text-xs font-semibold rounded hover:bg-primary/20 transition-colors">
+                      <span className="material-symbols-outlined text-[16px]">receipt</span>
+                      Nota
+                    </a>
                   </td>
                 </tr>
               ))}
