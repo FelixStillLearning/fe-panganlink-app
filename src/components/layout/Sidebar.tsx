@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 // Navigation config — admin sidebar
 export const adminNavItems = [
   { to: '/admin/dashboard', icon: 'dashboard', label: 'Dashboard' },
+  { to: '/admin/pengguna', icon: 'manage_accounts', label: 'Manajemen Pengguna' },
   { to: '/admin/moderasi', icon: 'verified_user', label: 'Moderasi Produk' },
   { to: '/admin/komoditas', icon: 'category', label: 'Kelola Komoditas' },
   { to: '/admin/harga-pasar', icon: 'price_change', label: 'Harga Pasar' },
