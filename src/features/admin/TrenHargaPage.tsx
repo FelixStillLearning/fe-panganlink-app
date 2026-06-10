@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -29,37 +29,69 @@ export function TrenHargaPage() {
   const [selectedPeriod, setSelectedPeriod] = useState('30 Hari')
   const [selectedCommodity, setSelectedCommodity] = useState('Beras')
 
-  // Generate Mock Data
-  const { chartData, labels, predictedValues, upperValues, lowerValues } = useMemo(() => {
-    const data = []
-    let currentPrice = 14000
-    const startDate = new Date()
-    
-    for (let i = 0; i < 30; i++) {
-      const date = new Date(startDate)
-      date.setDate(startDate.getDate() + i)
-      
-      const change = Math.floor(Math.random() * 600) - 300
-      currentPrice = Math.max(13000, Math.min(15500, currentPrice + change))
-      
-      const confidenceMargin = 400 + Math.floor(Math.random() * 200)
-      
-      data.push({
-        dateStr: date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }),
-        predicted: currentPrice,
-        lower: currentPrice - confidenceMargin,
-        upper: currentPrice + confidenceMargin
-      })
-    }
+  const [chartData, setChartData] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-    return {
-      chartData: data,
-      labels: data.map(d => d.dateStr),
-      predictedValues: data.map(d => d.predicted),
-      upperValues: data.map(d => d.upper),
-      lowerValues: data.map(d => d.lower)
+  useEffect(() => {
+    const fetchForecast = async () => {
+      setIsLoading(true)
+      setError(null)
+      try {
+        const komoditasMap: Record<string, string> = {
+          'Beras': '1',
+          'Cabai Merah': '2',
+          'Bawang Merah': '3'
+        }
+        const periodMap: Record<string, number> = {
+          '7 Hari': 7,
+          '14 Hari': 14,
+          '30 Hari': 30
+        }
+        
+        const kid = komoditasMap[selectedCommodity]
+        const periods = periodMap[selectedPeriod]
+        
+        const res = await fetch('http://localhost:8000/api/v1/ai/forecast', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ komoditas_id: kid, periods: periods })
+        })
+        
+        if (!res.ok) throw new Error('Gagal mengambil data prediksi dari AI Service')
+        
+        const data = await res.json()
+        const predictions = data.predictions || []
+        
+        const formattedData = predictions.map((p: any) => {
+          const date = new Date(p.tanggal)
+          return {
+            dateStr: date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }),
+            predicted: p.prediksi_harga,
+            lower: p.batas_bawah,
+            upper: p.batas_atas
+          }
+        })
+        
+        setChartData(formattedData)
+      } catch (err: any) {
+        setError(err.message)
+      } finally {
+        setIsLoading(false)
+      }
     }
-  }, [])
+    
+    fetchForecast()
+  }, [selectedCommodity, selectedPeriod])
+
+  const labels = chartData.map(d => d.dateStr)
+  const predictedValues = chartData.map(d => d.predicted)
+  const upperValues = chartData.map(d => d.upper)
+  const lowerValues = chartData.map(d => d.lower)
+
+  const currentPrice = predictedValues.length > 0 ? predictedValues[0] : 0
+  const maxObj = chartData.length > 0 ? chartData.reduce((prev, current) => (prev.predicted > current.predicted) ? prev : current, chartData[0]) : null
+  const minObj = chartData.length > 0 ? chartData.reduce((prev, current) => (prev.predicted < current.predicted) ? prev : current, chartData[0]) : null
 
   const formatRp = (value: number) => {
     return new Intl.NumberFormat('id-ID', { 
@@ -215,7 +247,19 @@ export function TrenHargaPage() {
       <div className="bg-surface-container-lowest rounded-xl p-4 md:p-6 shadow-soft border border-outline-variant/30 relative overflow-hidden animate-fadeIn" style={{ animationDelay: '200ms' }}>
         <div className="absolute inset-0 bg-gradient-to-br from-surface/50 to-primary-muted/20 pointer-events-none"></div>
         <div className="relative z-10 w-full h-[350px] md:h-[450px]">
-          <Line data={data} options={options} />
+          {isLoading ? (
+            <div className="w-full h-full flex flex-col items-center justify-center text-primary">
+              <span className="material-symbols-outlined animate-spin text-4xl mb-4">refresh</span>
+              <p className="font-medium animate-pulse">Menghitung Prediksi AI...</p>
+            </div>
+          ) : error ? (
+            <div className="w-full h-full flex flex-col items-center justify-center text-danger">
+              <span className="material-symbols-outlined text-4xl mb-4">error</span>
+              <p className="font-medium">{error}</p>
+            </div>
+          ) : (
+            <Line data={data} options={options} />
+          )}
         </div>
       </div>
 
@@ -228,25 +272,31 @@ export function TrenHargaPage() {
             </div>
             <span className="text-sm text-on-surface-variant">Harga Prediksi Hari Ini</span>
           </div>
-          <div className="font-mono text-xl font-bold text-primary">Rp 14.250</div>
+          <div className="font-mono text-xl font-bold text-primary">{formatRp(currentPrice)}</div>
         </div>
         <div className="bg-surface-container-lowest rounded-xl p-6 shadow-soft border border-outline-variant/30 flex flex-col gap-2 hover:-translate-y-1 transition-transform">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center text-success">
               <span className="material-symbols-outlined">trending_up</span>
             </div>
-            <span className="text-sm text-on-surface-variant">Prediksi Tertinggi (30 hari)</span>
+            <span className="text-sm text-on-surface-variant">Prediksi Tertinggi</span>
           </div>
-          <div className="font-mono text-xl font-bold text-on-surface">Rp 15.100 <span className="text-xs text-on-surface-variant font-sans font-normal ml-1">(15 Jun)</span></div>
+          <div className="font-mono text-xl font-bold text-on-surface">
+            {maxObj ? formatRp(maxObj.predicted) : 'Rp 0'} 
+            <span className="text-xs text-on-surface-variant font-sans font-normal ml-1">({maxObj?.dateStr})</span>
+          </div>
         </div>
         <div className="bg-surface-container-lowest rounded-xl p-6 shadow-soft border border-outline-variant/30 flex flex-col gap-2 hover:-translate-y-1 transition-transform">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-full bg-danger/10 flex items-center justify-center text-danger">
               <span className="material-symbols-outlined">trending_down</span>
             </div>
-            <span className="text-sm text-on-surface-variant">Prediksi Terendah (30 hari)</span>
+            <span className="text-sm text-on-surface-variant">Prediksi Terendah</span>
           </div>
-          <div className="font-mono text-xl font-bold text-on-surface">Rp 13.800 <span className="text-xs text-on-surface-variant font-sans font-normal ml-1">(22 Jun)</span></div>
+          <div className="font-mono text-xl font-bold text-on-surface">
+            {minObj ? formatRp(minObj.predicted) : 'Rp 0'} 
+            <span className="text-xs text-on-surface-variant font-sans font-normal ml-1">({minObj?.dateStr})</span>
+          </div>
         </div>
       </div>
 
