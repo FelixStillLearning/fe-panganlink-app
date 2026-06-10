@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { api } from '../../lib/api'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -83,15 +84,9 @@ export function TrenHargaPage() {
         const kid = komoditasMap[selectedCommodity]
         const periods = periodMap[selectedPeriod]
         
-        const res = await fetch('http://localhost:8000/api/v1/ai/forecast', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ komoditas_id: kid, periods: periods })
-        })
+        const res = await api.get(`/v1/admin/price-trends?komoditas_id=${kid}&periods=${periods}`)
         
-        if (!res.ok) throw new Error('Gagal mengambil data prediksi dari AI Service')
-        
-        const data = await res.json()
+        const data = res.data || {}
         const predictions = data.predictions || []
         const historical = data.historical || []
         
