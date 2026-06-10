@@ -19,8 +19,33 @@ export function HargaPasarPage() {
   }, [])
 
   const handleDelete = async (id: string) => {
+    // Find row before deleting
+    const rowToDelete = tableData.find(row => row.id === id)
+    
     try {
+      // Delete from Go Backend
       await api.delete(`/v1/admin/market-prices/${id}`)
+      
+      // Sync delete with AI Service
+      if (rowToDelete) {
+        const komoditasMap: Record<string, string> = {
+          'Beras': '1',
+          'Cabai Merah': '2',
+          'Bawang Merah': '3'
+        }
+        const kid = komoditasMap[rowToDelete.item]
+        if (kid) {
+          const dateStr = new Date(rowToDelete.date).toISOString().split('T')[0]
+          try {
+            await fetch(`http://localhost:8000/api/v1/ai/delete_data?komoditas_id=${kid}&tanggal=${dateStr}`, {
+              method: 'DELETE'
+            })
+          } catch(e) {
+            console.error("Gagal hapus di AI:", e)
+          }
+        }
+      }
+
       setTableData(prev => prev.filter(row => row.id !== id))
     } catch (err) {
       console.error('Failed to delete market price:', err)
@@ -37,6 +62,7 @@ export function HargaPasarPage() {
     const region = (form.elements.namedItem('wilayah') as HTMLInputElement).value
 
     try {
+      // Update to Go Backend
       const payload = {
         item,
         date: new Date(dateStr).toISOString(),
@@ -44,9 +70,33 @@ export function HargaPasarPage() {
         region
       }
       await api.post('/v1/admin/market-prices', payload)
+      
+      // Update AI Service as well
+      const komoditasMap: Record<string, string> = {
+        'Beras': '1',
+        'Cabai Merah': '2',
+        'Bawang Merah': '3'
+      }
+      const kid = komoditasMap[item]
+      if (kid) {
+          try {
+              await fetch('http://localhost:8000/api/v1/ai/update_data', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ 
+                      komoditas_id: kid, 
+                      tanggal: dateStr, 
+                      harga_aktual: parseFloat(priceStr) 
+                  })
+              });
+          } catch (aiErr) {
+              console.error("Gagal sinkronisasi dengan AI service:", aiErr);
+          }
+      }
+
       await fetchMarketPrices()
       setIsModalOpen(false)
-      alert("Data Harga Pasar berhasil ditambahkan!")
+      alert("Data Harga Pasar berhasil ditambahkan! AI akan menggunakan data ini untuk prediksi berikutnya.")
     } catch (err) {
       console.error('Failed to save market price:', err)
       alert('Gagal menyimpan data harga pasar.')
@@ -84,8 +134,8 @@ export function HargaPasarPage() {
             <select className="w-full appearance-none bg-surface border border-outline-variant rounded-lg px-4 py-2 text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary-muted outline-none transition-all cursor-pointer">
               <option>Semua Komoditas</option>
               <option>Beras</option>
-              <option>Jagung</option>
-              <option>Kedelai</option>
+              <option>Cabai Merah</option>
+              <option>Bawang Merah</option>
             </select>
             <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-secondary">arrow_drop_down</span>
           </div>
@@ -181,8 +231,8 @@ export function HargaPasarPage() {
                   <select name="komoditas" required className="w-full appearance-none bg-surface border border-outline-variant rounded-lg px-4 py-2 text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary-muted outline-none transition-all cursor-pointer">
                     <option value="">Pilih Komoditas</option>
                     <option value="Beras">Beras</option>
-                    <option value="Jagung">Jagung</option>
-                    <option value="Kedelai">Kedelai</option>
+                    <option value="Cabai Merah">Cabai Merah</option>
+                    <option value="Bawang Merah">Bawang Merah</option>
                   </select>
                   <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-secondary">arrow_drop_down</span>
                 </div>
