@@ -42,12 +42,12 @@ export function PembeliKeranjangPage() {
             alert('Pembayaran berhasil!')
             navigate('/pembeli/pesanan')
           },
-          onPending: function (result: any) {
+          onPending: function () {
             clearCart()
             alert('Menunggu pembayaran!')
             navigate('/pembeli/pesanan')
           },
-          onError: function (result: any) {
+          onError: function () {
             alert('Pembayaran gagal!')
           },
           onClose: function () {

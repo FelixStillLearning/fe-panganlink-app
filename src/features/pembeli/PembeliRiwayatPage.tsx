@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { SectionCard, Badge, Button } from '../../components/ui'
+import { SectionCard, Badge } from '../../components/ui'
 import { pembeliApi } from '../../lib/services'
 
 export function PembeliRiwayatPage() {
