@@ -1,4 +1,4 @@
-import { SectionCard, Button } from '../../components/ui'
+import { SectionCard } from '../../components/ui'
 
 import { useState, useEffect } from 'react'
 
