@@ -17,7 +17,7 @@ export function RegisterPage() {
     const name = formData.get('name') as string
     const email = formData.get('email') as string
     const password = formData.get('password') as string
-    const role = formData.get('role') as string
+    const role = 'pembeli' // Petani harus didaftarkan oleh admin
     
     try {
       await api.post('/v1/auth/register', { name, email, password, role })
@@ -133,22 +133,6 @@ export function RegisterPage() {
               </div>
             </div>
             
-            <div>
-              <label className="block text-sm font-semibold text-on-surface mb-1.5">Daftar Sebagai</label>
-              <div className="relative">
-                <select
-                  name="role"
-                  required
-                  className="w-full pl-4 pr-10 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-xl text-sm focus:border-primary focus:ring-2 focus:ring-primary-muted transition-all appearance-none cursor-pointer"
-                  defaultValue="pembeli"
-                >
-                  <option value="pembeli">Pembeli</option>
-                  <option value="petani">Petani</option>
-                </select>
-                <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-secondary pointer-events-none text-[20px]">expand_more</span>
-              </div>
-            </div>
-
             <div className="flex items-start mt-4">
               <input type="checkbox" id="terms" required className="w-4 h-4 mt-0.5 text-primary bg-surface border-outline-variant rounded focus:ring-primary focus:ring-2 cursor-pointer" />
               <label htmlFor="terms" className="ml-2 text-sm text-on-surface-variant cursor-pointer">
