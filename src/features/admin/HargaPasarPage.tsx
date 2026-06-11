@@ -26,7 +26,7 @@ export function HargaPasarPage() {
       // Delete from Go Backend
       await api.delete(`/v1/admin/market-prices/${id}`)
       
-      // Sync delete with AI Service
+      // Sync delete with AI Service via Backend Proxy
       if (rowToDelete) {
         const komoditasMap: Record<string, string> = {
           'Beras': '1',
@@ -37,9 +37,7 @@ export function HargaPasarPage() {
         if (kid) {
           const dateStr = new Date(rowToDelete.date).toISOString().split('T')[0]
           try {
-            await fetch(`http://localhost:8000/api/v1/ai/delete_data?komoditas_id=${kid}&tanggal=${dateStr}`, {
-              method: 'DELETE'
-            })
+            await api.delete(`/v1/admin/ai-sync/delete?komoditas_id=${kid}&tanggal=${dateStr}`)
           } catch(e) {
             console.error("Gagal hapus di AI:", e)
           }
@@ -71,7 +69,7 @@ export function HargaPasarPage() {
       }
       await api.post('/v1/admin/market-prices', payload)
       
-      // Update AI Service as well
+      // Update AI Service as well via Backend Proxy
       const komoditasMap: Record<string, string> = {
         'Beras': '1',
         'Cabai Merah': '2',
@@ -80,14 +78,10 @@ export function HargaPasarPage() {
       const kid = komoditasMap[item]
       if (kid) {
           try {
-              await fetch('http://localhost:8000/api/v1/ai/update_data', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ 
-                      komoditas_id: kid, 
-                      tanggal: dateStr, 
-                      harga_aktual: parseFloat(priceStr) 
-                  })
+              await api.post('/v1/admin/ai-sync/update', { 
+                  komoditas_id: kid, 
+                  tanggal: dateStr, 
+                  harga_aktual: parseFloat(priceStr) 
               });
           } catch (aiErr) {
               console.error("Gagal sinkronisasi dengan AI service:", aiErr);
