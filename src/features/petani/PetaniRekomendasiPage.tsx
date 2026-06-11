@@ -1,6 +1,6 @@
 import { SectionCard } from '../../components/ui'
-
 import { useState, useEffect } from 'react'
+import { api } from '../../lib/api'
 
 export function PetaniRekomendasiPage() {
   const [recommendations, setRecommendations] = useState<any[]>([])
@@ -13,17 +13,13 @@ export function PetaniRekomendasiPage() {
         const komoditasIds = ['1', '2', '3'] // Beras, Cabai, Bawang
         
         const reqs = komoditasIds.map(kid => 
-          fetch('http://localhost:8000/api/v1/ai/recommend', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ komoditas_id: kid })
-          }).then(res => res.json())
+          api.get(`/v1/petani/recommendations?komoditas_id=${kid}`)
         )
         
         const results = await Promise.all(reqs)
         
         // Filter out empty results and format
-        const formatted = results.filter(r => r.komoditas_name).map(r => ({
+        const formatted = results.map(res => res.data).filter(r => r && r.komoditas_name).map(r => ({
           name: r.komoditas_name === 'beras' ? 'Beras' : r.komoditas_name === 'cabai_merah' ? 'Cabai Merah' : 'Bawang Merah',
           trend: r.trend_text,
           direction: r.direction,

@@ -47,13 +47,13 @@ export function PembeliProfilPage() {
 
     setUploading(true)
     const form = new FormData()
-    form.append('file', file)
+    form.append('image', file)
     
     try {
-      const res = await api.post('/v1/upload', form, {
+      const res = await api.post<any>('/v1/upload', form, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
-      const url = (res as any).data.url
+      const url = res.url
       await pembeliApi.updateProfile({ foto_url: url })
       fetchProfile()
     } catch (err) {
